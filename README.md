@@ -14,7 +14,7 @@ Consider ALL other APIs to be not safe for user-input:
  
  See full article at [Doctrine Security](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/security.html)
 
-Checking whole codebase requires a lot of time. To simplify this task sql-injection search was added. It is based on (PHPStan - PHP Static Analysis Tool)[https://github.com/phpstan/phpstan]
+Checking whole codebase requires a lot of time. To simplify this task sql-injection search was added. It is based on [PHPStan - PHP Static Analysis Tool](https://github.com/phpstan/phpstan)
 and implemented as additional Rule
 
 To check codebase for unsafe DQL usages do the following actions:

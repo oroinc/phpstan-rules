@@ -9,3 +9,7 @@ Oro\Bridge\MarketingCRM\Entity\Repository\ChannelRepository:
 Oro\Bundle\MagentoBundle\Service\AutomaticDiscovery:
     discoverSimilar:
         organizationField: true
+
+Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
+    getEventListQueryBuilder:
+        field: true

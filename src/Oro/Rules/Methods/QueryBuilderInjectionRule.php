@@ -278,6 +278,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $value instanceof Node\Expr\BinaryOp\Concat
             || $value instanceof Node\Expr\Variable
             || $value instanceof Node\Scalar\Encapsed
+            || $value instanceof Node\Scalar\EncapsedStringPart
             || $value instanceof Node\Scalar\String_
             || $value instanceof Node\Scalar\DNumber
             || $value instanceof Node\Scalar\LNumber
@@ -343,7 +344,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         };
 
         if ($this->currentFile !== $scope->getFile()) {
-            unset($this->localTrustedVars[$scope->getFile()]);
+            unset($this->localTrustedVars[$this->currentFile]);
             $this->currentFile = $scope->getFile();
         }
 

@@ -1,0 +1,16 @@
+parameters:
+    excludes_analyse:
+        - */Tests/*
+        - */Testing/*
+        - */Symfony/*
+        - */Migrations/*
+    customRulesetUsed: true
+    checkThisOnly: false
+
+services:
+    -
+        class: Oro\Rules\Methods\QueryBuilderInjectionRule
+        arguments:
+            checkThisOnly: %checkThisOnly%
+        tags:
+            - phpstan.rules.rule

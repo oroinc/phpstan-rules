@@ -1,0 +1,11 @@
+Oro\Bundle\CalendarBundle\Manager\AttendeeRelationManager:
+    addRelatedEntityInfo:
+       userName: true
+
+Oro\Bridge\MarketingCRM\Entity\Repository\ChannelRepository:
+    getVisitsCountForChannelTypeQB:
+        entityName: true
+
+Oro\Bundle\MagentoBundle\Service\AutomaticDiscovery:
+    discoverSimilar:
+        organizationField: true

@@ -22,4 +22,4 @@ To check codebase for unsafe DQL usages do the following actions:
  - run check with `./vendor/bin/phpstan analyze -c config.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
 
 In a minute analise results will be available. Each of them should be checked carefully, if needed unsafe variables should be santized or escaped to be safe.
-If variable is safe at may be added to `trusted_variables.neon` and will be skipped during further checks. 
+If variable or method is safe it may be added to `trusted_data.neon` and will be skipped during further checks. 

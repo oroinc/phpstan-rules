@@ -1,0 +1,111 @@
+variables:
+    Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
+        getEventListQueryBuilder:
+            field: true
+
+    Oro\Bundle\CalendarBundle\Manager\AttendeeRelationManager:
+        addRelatedEntityInfo:
+           userName: true
+
+    Oro\Bundle\CalendarBundle\Provider\CalendarPropertyProvider:
+        getItems:
+            selectItems: true
+
+    Oro\Bridge\MarketingCRM\Entity\Repository\ChannelRepository:
+        getVisitsCountForChannelTypeQB:
+            entityName: true
+
+    Oro\Bundle\MagentoBundle\Service\AutomaticDiscovery:
+        discoverSimilar:
+            organizationField: true
+
+    Oro\Bundle\CustomerBundle\EventListener\Datagrid\CustomerUserRoleDatagridListener:
+        onBuildAfter:
+            criteria: true
+
+    Oro\Bundle\CustomerBundle\Handler\CustomerAssignHelper:
+        hasAssignments:
+            association: true
+
+    Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
+        searchEntities:
+            idFieldName: true
+
+    Oro\Bundle\MarketingListBundle\Provider\MarketingListProvider:
+        getMarketingListEntitiesQueryBuilder:
+            entityAlias: true
+
+    Oro\Bundle\MarketingActivityBundle\Entity\Repository\MarketingActivityRepository:
+        applyPageFilter:
+            orderDirection: true
+
+    Oro\Bundle\CampaignBundle\Entity\Repository\CampaignRepository:
+        getCampaignsLeadsQB:
+            leadAlias: true
+        getCampaignsOpportunitiesQB:
+            opportunitiesAlias: true
+        getCampaignsByCloseRevenueQB:
+            opportunitiesAlias: true
+
+    Oro\Bundle\TaskBundle\EventListener\Datagrid\UserTaskGridListener:
+        onBuildAfter:
+            userId: true
+
+    Oro\Bundle\DotmailerBundle\Entity\Repository\AddressBookContactRepository:
+        bulkUpdateFlagByEntity:
+            flagColumn: true
+
+    Oro\Bundle\DotmailerBundle\QueryDesigner\ParentEntityFindQueryConverter:
+        addSelectStatement:
+            tableAlias: true
+            idField: true
+
+properties:
+    Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
+        searchEntities:
+            idFieldName: true
+
+    Oro\Bundle\AbandonedCartBundle\Model\AbandonedCartList\Tracking\TrackingStatProvider:
+        getStatResult:
+            orderAssociationName: true
+            campaignAssociationName: true
+
+    Oro\Bundle\AbandonedCartBundle\Datagrid\AbandonedCartCampaignListener:
+        onBuildAfter:
+            abandonedCartCampaignClass: true
+
+    Oro\Bundle\AbandonedCartBundle\Datagrid\MarketingListListener:
+        onBuildAfter:
+            abandonedCartCampaignClass: true
+
+    Oro\Bundle\MarketingListBundle\Datagrid\Extension\MarketingListExtension:
+        createItemsQuery:
+            marketingListId: true
+
+    Oro\Bundle\DotmailerBundle\Model\Action\MarketingListStateItemRemoveAction:
+        getMarketingListEntitiesByEmailQueryBuilder:
+            marketingListStateItemClassName: true
+
+    Oro\Bundle\DotmailerBundle\Model\Action\MarketingListStateItemCreateAction:
+        getMarketingListEntitiesByEmailQueryBuilder:
+            marketingListStateItemClassName: true
+
+    Oro\Bundle\DotmailerBundle\Provider\MarketingListItemsQueryBuilderProvider:
+        getRemovedMarketingListItemsQB:
+            addressBookContactClassName: true
+
+methods:
+    Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
+        getBaseFields: true
+
+    Oro\Bundle\MarketingListBundle\Entity\MarketingList:
+        getId: true
+
+    Oro\Bundle\OrganizationProBundle\Entity\Repository\UserPreferredOrganizationRepository:
+        getEntityName: true
+
+    Oro\Bundle\EwsBundle\Sync\EwsEmailSynchronizer:
+        getEmailOriginClass: true
+
+    Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
+        getEntityClass: true

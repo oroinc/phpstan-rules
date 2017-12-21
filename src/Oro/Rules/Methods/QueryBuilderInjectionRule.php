@@ -7,20 +7,36 @@ use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleLevelHelper;
 use PHPStan\Type\ObjectType;
+use PHPStan\Type\ThisType;
 
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
     const SAFE_FUNCTIONS = [
+        'sprintf' => true,
+        'implode' => true,
+        'reset' => true
+    ];
+
+    const SAFE_METHODS = [
         'Doctrine\\ORM\\QueryBuilder::setParameter' => true,
         'Doctrine\\ORM\\QueryBuilder::setParameters' => true,
         'Doctrine\\ORM\\QueryBuilder::setMaxResults' => true,
         'Doctrine\\ORM\\QueryBuilder::setFirstResult' => true,
-        'Doctrine\\ORM\\Query\\Expr::literal' => true
+        'Doctrine\\ORM\\QueryBuilder::getRootAliases' => true,
+        'Doctrine\\ORM\\QueryBuilder::getRootAlias' => true,
+        'Oro\\Bundle\\DataGridBundle\\Datasource\\Orm\\OrmQueryConfiguration::getRootAlias' => true,
+        'Oro\\Component\\EntitySerializer\\DoctrineHelper::getRootAlias' => true,
+        'Doctrine\\ORM\\Query\\Expr::literal' => true,
+        'Doctrine\\ORM\\Query\\Expr\\Base::add' => true
     ];
 
     const SAFE_STATIC_METHODS = [
         'Oro\\Bundle\\EntityExtendBundle\\Tools\\ExtendHelper::buildAssociationName' => true
     ];
+
+    const VAR = 'variables';
+    const METHODS = 'methods';
+    const PROPERTIES = 'properties';
 
     /**
      * @var \PHPStan\Rules\RuleLevelHelper
@@ -50,12 +66,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * @var array
      */
-    private $trustedVariables;
-
-    /**
-     * @var array
-     */
-    private $rootAliasesHolder = [];
+    private $trustedData;
 
     /**
      * @param \PhpParser\PrettyPrinter\Standard $printer
@@ -70,7 +81,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $this->ruleLevelHelper = $ruleLevelHelper;
         $this->checkThisOnly = $checkThisOnly;
         $this->printer = $printer;
-        $this->trustedVariables = Neon::decode(file_get_contents('trusted_variables.neon'));
+        $this->trustedData = Neon::decode(file_get_contents('trusted_data.neon'));
     }
 
     /**
@@ -105,18 +116,13 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeFunctionCall(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\FuncCall) {
-            if ($value->name instanceof Node\Name && $value->name->toString() === 'sprintf') {
+            if ($value->name instanceof Node\Name
+                && !empty(self::SAFE_FUNCTIONS[$value->name->toString()])) {
                 foreach ($value->args as $arg) {
                     if ($this->isUnsafe($arg->value, $scope)) {
                         return true;
                     }
                 }
-            } elseif ($value->name instanceof Node\Name
-                && $value->name->toString() === 'reset'
-                && ($argValue = $value->args[0]->value) instanceof Node\Expr\Variable
-                && !empty($this->rootAliasesHolder[$scope->getFile()][$scope->getFunctionName()][$argValue->name])
-            ) {
-                return false;
             } else {
                 return true;
             }
@@ -127,10 +133,9 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
     /**
      * @param Node\Expr $value
-     * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeStaticMethodCall(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeStaticMethodCall(Node\Expr $value): bool
     {
         if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
             $staticKey = $value->class->toString() . '::' . $value->name;
@@ -153,7 +158,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if ($value instanceof Node\Expr\MethodCall) {
             $argsCount = count($value->args);
             $type = $scope->getType($value->var);
-            if (!$type instanceof ObjectType) {
+            if (!$type instanceof ObjectType && !$type instanceof ThisType) {
                 return true;
             }
             $className = $type->getClassName();
@@ -166,16 +171,20 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         $methodName = $value->name;
                     }
                     $errors[] = sprintf(
-                        'Unsafe calling method %s() of %s. Argument %d contains unsafe values %s',
-                        $methodName,
+                        'Unsafe calling method %s::%s. ' . PHP_EOL .
+                        'Argument %d contains unsafe values %s. ' . PHP_EOL .
+                        'Class %s, method %s',
                         $className,
+                        $methodName,
                         $pos,
-                        $this->printer->prettyPrint([$value->args[$pos]])
+                        $this->printer->prettyPrint([$value->args[$pos]]),
+                        $scope->getClassReflection()->getName(),
+                        $scope->getFunctionName()
                     );
                 }
             };
 
-            if (!empty(self::SAFE_FUNCTIONS[$className . '::' . $value->name])) {
+            if (\is_string($value->name) && !empty(self::SAFE_METHODS[$className . '::' . $value->name])) {
                 return false;
             }
 
@@ -210,6 +219,14 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                     return !empty($errors);
 
                 default:
+                    if (!empty($this->trustedData[self::METHODS][$className][$value->name])) {
+                        for ($i = 0; $i < $argsCount; $i++) {
+                            $checkArg($i);
+                        }
+
+                        return !empty($errors);
+                    }
+
                     return true;
             }
         }
@@ -222,7 +239,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
-    private function isConcat(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeConcat(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\BinaryOp\Concat) {
             return $this->isUnsafe($value->left, $scope) || $this->isUnsafe($value->right, $scope);
@@ -236,12 +253,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
-    private function isVariable(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeVariable(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Variable) {
             $className = $scope->getClassReflection()->getName();
 
-            return empty($this->trustedVariables[$className][$scope->getFunctionName()][$value->name])
+            return empty($this->trustedData[self::VAR][$className][$scope->getFunctionName()][$value->name])
                 && empty($this->localTrustedVars[$scope->getFile()][$scope->getFunctionName()][$value->name]);
         }
 
@@ -253,7 +270,27 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
-    private function isEncapsedString(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeProperty(Node\Expr $value, Scope $scope): bool
+    {
+        if ($value instanceof Node\Expr\PropertyFetch) {
+            $type = $scope->getType($value->var);
+            if (!$type instanceof ObjectType && !$type instanceof ThisType) {
+                return true;
+            }
+            $className = $type->getClassName();
+
+            return empty($this->trustedData[self::PROPERTIES][$className][$scope->getFunctionName()][$value->name]);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Node\Expr $value
+     * @param Scope $scope
+     * @return bool
+     */
+    private function isUnsafeEncapsedString(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Scalar\Encapsed) {
             foreach ($value->parts as $partValue) {
@@ -277,6 +314,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $value instanceof Node\Expr\FuncCall
             || $value instanceof Node\Expr\BinaryOp\Concat
             || $value instanceof Node\Expr\Variable
+            || $value instanceof Node\Expr\PropertyFetch
             || $value instanceof Node\Scalar\Encapsed
             || $value instanceof Node\Scalar\EncapsedStringPart
             || $value instanceof Node\Scalar\String_
@@ -284,6 +322,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $value instanceof Node\Scalar\LNumber
             || $value instanceof Node\Expr\StaticCall
             || $value instanceof Node\Expr\ClassConstFetch
+            || $value instanceof Node\Expr\ArrayDimFetch
+            || $value instanceof Node\Expr\ConstFetch
         );
     }
 
@@ -295,12 +335,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeArrayDimFetch(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\ArrayDimFetch) {
-            if ($value->var instanceof Node\Expr\Variable) {
-                // Trust root aliases received as $rootAliases[0]
-                return empty($this->rootAliasesHolder[$scope->getFile()][$scope->getFunctionName()][$value->var->name]);
-            }
-
-            return true;
+            return $this->isUnsafe($value->var, $scope);
         }
 
         return false;
@@ -324,13 +359,14 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         }
 
         return $this->isUncheckedType($value)
-            || $this->isUnsafeArrayDimFetch($value, $scope)
+            || $this->isUnsafeVariable($value, $scope)
+            || $this->isUnsafeProperty($value, $scope)
+            || $this->isUnsafeStaticMethodCall($value)
             || $this->isUnsafeFunctionCall($value, $scope)
             || $this->isUnsafeMethodCall($value, $scope)
-            || $this->isUnsafeStaticMethodCall($value, $scope)
-            || $this->isConcat($value, $scope)
-            || $this->isVariable($value, $scope)
-            || $this->isEncapsedString($value, $scope);
+            || $this->isUnsafeArrayDimFetch($value, $scope)
+            || $this->isUnsafeConcat($value, $scope)
+            || $this->isUnsafeEncapsedString($value, $scope);
     }
 
     /**
@@ -350,16 +386,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
         /** @var Node\Expr\Variable $var */
         if (($var = $node->var) instanceof Node\Expr\Variable) {
-            if ($node->expr instanceof Node\Expr\MethodCall) {
-                // Get variables that store query builder root aliases
-                $type = $scope->getType($node->expr->var);
-                if ($type instanceof ObjectType
-                    && $node->expr->name === 'getRootAliases'
-                    && $type->getClassName() === 'Doctrine\\ORM\\QueryBuilder'
-                ) {
-                    $this->rootAliasesHolder[$scope->getFile()][$scope->getFunctionName()][$var->name] = true;
-                }
-            } elseif (!$this->isUnsafe($node->expr, $scope)) {
+            if (!$this->isUnsafe($node->expr, $scope)) {
                 // Trust safe variables
                 $trustVariable($var->name);
             }

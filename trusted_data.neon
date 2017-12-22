@@ -60,6 +60,89 @@ variables:
             tableAlias: true
             idField: true
 
+    Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
+        deleteMailChimpMembersExtendedVars:
+            staticSegmentId: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
+        getIteratorQueryBuilder:
+            ownerId: true
+            channelId: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Strategy\MemberActivityImportStrategy:
+        findOneBy:
+            entityName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
+        createQueryBuilder:
+            identifierFieldName: true
+
+    Oro\Bundle\MagentoBundle\EventListener\ChannelOwnerSetListener:
+        updateMagentoEntity:
+            newOwnerId: true
+            entityName: true
+
+    Oro\Bundle\MagentoBundle\Manager\MagentoDeleteProvider:
+        removeWorkflowDefinitions:
+            entityClassName: true
+
+    Oro\Bundle\ChannelBundle\Entity\Repository\LifetimeHistoryRepository:
+        calculateAccountLifetime:
+            customerAlias: true
+
+    Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:
+        applyPriceListLimitations:
+            rootAlias: true
+            limitationQb: true
+
+    Oro\Bundle\PricingBundle\Entity\Repository\CombinedPriceListRepository:
+        getUnusedPriceListsIds:
+            entityName: true
+            alias: true
+        hasOtherRelations:
+            alias: true
+            class: true
+            expr: true
+
+    Oro\Bundle\PricingBundle\Expression\PriceListQueryConverterExtension:
+        joinPriceListPrices:
+            priceListTableAlias: true
+
+    Oro\Bundle\PricingBundle\Sharding\ShardManager:
+        getShardsAttributes:
+            targetFieldName: true
+
+    Oro\Bundle\PricingBundle\Compiler\ProductAssignmentRuleCompiler:
+        restrictByManualPrices:
+            rootAlias: true
+            subQb: true
+
+    Oro\Bundle\PricingBundle\Compiler\PriceListRuleCompiler:
+        restrictByManualPrices:
+            rootAlias: true
+        restrictByAssignedProducts:
+            rootAlias: true
+
+    Oro\Bundle\ProductBundle\Model\ProductVisibilityQueryBuilderModifier:
+        addWhereInExpr:
+            rootAlias: true
+
+    Oro\Bundle\RedirectBundle\Async\SluggableEntitiesProcessor:
+        getEntityIds:
+            identifierFieldName: true
+
+    Oro\Bundle\SEOBundle\EventListener\RestrictSitemapCmsPageByWebCatalogListener:
+        getWebCatalogEntityIdsQueryBuilder:
+            rootAlias: true
+
+    Oro\Bundle\ShoppingListBundle\Form\Type\FrontendLineItemWidgetType:
+        buildForm:
+            criteria: true
+
+    Oro\Bundle\TaxBundle\Entity\Repository\TaxRuleRepository:
+        joinTaxCodes:
+            alias: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -94,18 +177,151 @@ properties:
         getRemovedMarketingListItemsQB:
             addressBookContactClassName: true
 
-methods:
+    Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
+        handleDroppedMembers:
+            staticSegmentMember: true
+        deleteMailChimpMembers:
+            mailChimpMemberСlassName: true
+        deleteMailChimpMembersExtendedVars:
+            extMergeVarClassName: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\AbstractStaticSegmentMembersIterator:
+        matchMembersByEmail:
+            memberClassName: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MarketingListEmailIterator:
+        prepareIteratorPart:
+            unsubscribedItemClassName: true
+            removedItemClassName: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberDroppedStateIterator:
+        createSubordinateIterator:
+            memberExtendedMergeVarEntity: true
+            memberEntity: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberRemoveStateIterator:
+        createSubordinateIterator:
+            marketingListEmailEntity: true
+            memberEntity: true
+
+    Oro\Bundle\MailChimpBundle\Acl\Voter\MarketingListStateItemVoter:
+        getQueryBuilder:
+            marketingListClassName: true
+            memberClassName: true
+            subscriberListClassName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
+        createQueryBuilder:
+            entityName: true
+            field: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberAddStateIterator:
+        createSubordinateIterator:
+            memberEntity: true
+            marketingListEmailEntity: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberToRemoveIterator:
+        createSubordinateIterator:
+            memberToRemoveEntity: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\AbstractStaticSegmentIterator:
+        prepareIteratorPart:
+            unsubscribedItemClassName: true
+            removedItemClassName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Reader\StaticSegmentReader:
+        getStaticSegmentIterator:
+            marketingListClassName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Writer\RemoveWriter:
+        createQueryBuilder:
+            entityName: true
+            field: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Writer\StaticSegmentExportWriter:
+        updateStaticSegmentMembersState:
+            staticSegmentMemberClassName: true
+        updateMembersStatus:
+            memberClassName: true
+        deleteListMembers:
+            memberClassName: true
+
+    Oro\Bundle\AnalyticsBundle\Model\RFMMetricStateManager:
+        executeResetQuery:
+            type: true
+
+    Oro\Bundle\SalesBundle\Autocomplete\BusinessCustomerSearchHandler:
+        getEntitiesByIds:
+            idFieldName: true
+
+    Oro\Bundle\PricingBundle\Filter\ProductPriceFilter:
+        qbPrepare:
+            productPriceClass: true
+
+safe_static_methods:
+    Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper:
+        buildAssociationName: true
+
+    Oro\Bundle\SalesBundle\Entity\Manager\AccountCustomerManager:
+        getCustomerTargetField: true
+
+safe_methods:
+    Doctrine\ORM\QueryBuilder:
+        setParameter: true
+        setParameters: true
+        setMaxResults: true
+        setFirstResult: true
+        getRootAliases: true
+        getRootAlias: true
+
+    Doctrine\ORM\Mapping\ClassMetadata:
+        getSingleIdentifierFieldName: true
+
+    Doctrine\ORM\Query\Expr:
+        literal: true
+
+    Doctrine\ORM\Query\Expr\Base:
+        add: true
+
+    Doctrine\Common\Collections\ArrayCollection:
+        count: true
+
+    Oro\Bundle\DataGridBundle\Datasource\Orm\OrmQueryConfiguration:
+        getRootAlias: true
+
+    Oro\Component\EntitySerializer\DoctrineHelper:
+        getRootAlias: true
+
+    Oro\Bundle\EntityBundle\ORM\DoctrineHelper:
+        getSingleRootAlias: true
+        getSingleEntityIdentifier: true
+        getEntityIdentifierFieldNames: true
+        getEntityIdentifierFieldNamesForClass: true
+        getEntityIdentifier: true
+        getSingleEntityIdentifierFieldName: true
+        getSingleEntityIdentifierFieldType: true
+    
     Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
         getBaseFields: true
-
-    Oro\Bundle\MarketingListBundle\Entity\MarketingList:
-        getId: true
-
-    Oro\Bundle\OrganizationProBundle\Entity\Repository\UserPreferredOrganizationRepository:
-        getEntityName: true
 
     Oro\Bundle\EwsBundle\Sync\EwsEmailSynchronizer:
         getEmailOriginClass: true
 
     Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
         getEntityClass: true
+
+    Oro\Bundle\ActivityContactBundle\Command\ActivityContactRecalculateCommand:
+        getAssociationName: true
+
+    Oro\Bundle\PaymentTermBundle\Manager\PaymentTermManager:
+        getAssociationName: true
+
+    Oro\Bundle\PricingBundle\Expression\PriceListQueryConverterExtension:
+        generateTableAlias: true
+
+    Oro\Bundle\PricingBundle\Compiler\PriceListRuleCompiler:
+        getRootAlias: true
+
+check_methods:
+    Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:
+        getParameterName: true

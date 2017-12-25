@@ -143,6 +143,108 @@ variables:
         joinTaxCodes:
             alias: true
 
+    Oro\Bundle\VisibilityBundle\EventListener\RestrictProductsIndexEventListener:
+        getVisibilityQueryBuilder:
+            visibilityAlias: true
+
+    Oro\Bundle\VisibilityBundle\EventListener\ProductDuplicateListener:
+        duplicateVisibility:
+            className: true
+
+    # visibility passed as integer but without additional checkes or typehints
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeGroupSubtreeCacheBuilder:
+        updateGroupCategoryVisibility:
+            visibility: true
+        updateProductVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeCustomerSubtreeCacheBuilder:
+        updateCustomerProductVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeCategorySubtreeCacheBuilder:
+        updateProductVisibilityByCategory:
+            visibility: true
+        updateCategoryVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\AbstractRelatedEntitiesAwareSubtreeCacheBuilder:
+        updateCustomerGroupsProductVisibility:
+            visibility: true
+        updateCustomersProductVisibility:
+            visibility: true
+        updateCustomersCategoryVisibility:
+            visibility: true
+        updateCustomerGroupsCategoryVisibility:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
+        updateCategoryVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\ProductRepository:
+        getVisibilitiesByCategoryQb:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupCategoryRepository:
+        insertParentCategoryValues:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\AbstractSubtreeCacheBuilder:
+        getChildCategoriesIdsWithFallbackToParent:
+            node: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupProductRepository:
+        insertByProduct:
+            productVisibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerProductRepository:
+        insertByProduct:
+            productVisibility: true
+        getSubQueryOfExistsVisibilities:
+            parentAlias: true
+
+    Oro\Bundle\VisibilityBundle\Driver\OrmCustomerPartialUpdateDriver:
+        addCustomerVisibility:
+           customerVisibilityFieldName: true
+        getIndexIntegerQueryBuilder:
+            alias: true
+
+    Oro\Component\EntitySerializer\QueryFactory:
+        getToManyAssociationQueryBuilder:
+            associationMapping: true
+
+    Oro\Component\EntitySerializer\EntitySerializer:
+        updateQuery:
+            propertyPath: true
+        updateSelectQueryPart:
+            alias: true
+
+    Oro\Bundle\ActivityBundle\Autocomplete\ContextSearchHandler:
+        getAssociatedTargetEntitiesQueryBuilder:
+            entityClass: true
+
+    Oro\Bundle\WorkflowBundle\Entity\Repository\ProcessDefinitionRepository:
+        findLikeName:
+            escapeChar: true
+
+    Oro\Bundle\TagBundle\Security\SecurityProvider:
+        applyAcl:
+            tableAlias: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\StaticSegmentManager:
+        getSelectSql:
+            identifier: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\SegmentManager:
+        getFilterSubQuery:
+            tableIdentifier: true
+
+    Oro\Bundle\SegmentBundle\Entity\Repository\SegmentSnapshotRepository:
+        getIdentifiersSelectQueryBuilder:
+            tableName: true
+            paramName: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -258,12 +360,31 @@ properties:
         qbPrepare:
             productPriceClass: true
 
+    Oro\Bundle\VisibilityBundle\EventListener\ProductDuplicateListener:
+        duplicateVisibility:
+            fieldName: true
+
+    Oro\Component\MessageQueue\Job\JobStorage:
+        createJobQueryBuilder:
+            entityClass: true
+
+    Oro\Bundle\WorkflowBundle\Datagrid\GridEntityNameProvider:
+        getRelatedEntitiesChoice:
+            entityName: true
+
+    Oro\Bundle\UserBundle\Autocomplete\WidgetRoleSearchHandler:
+        getEntitiesByIds:
+            idFieldName: true
+
 safe_static_methods:
     Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper:
         buildAssociationName: true
 
     Oro\Bundle\SalesBundle\Entity\Manager\AccountCustomerManager:
         getCustomerTargetField: true
+
+    Oro\Component\DoctrineUtils\ORM\QueryBuilderUtil:
+        getSingleRootAlias: true
 
 safe_methods:
     Doctrine\ORM\QueryBuilder:
@@ -276,6 +397,7 @@ safe_methods:
 
     Doctrine\ORM\Mapping\ClassMetadata:
         getSingleIdentifierFieldName: true
+        getIdentifierFieldNames: true
 
     Doctrine\ORM\Query\Expr:
         literal: true
@@ -291,6 +413,7 @@ safe_methods:
 
     Oro\Component\EntitySerializer\DoctrineHelper:
         getRootAlias: true
+        getEntityIdFieldName: true
 
     Oro\Bundle\EntityBundle\ORM\DoctrineHelper:
         getSingleRootAlias: true
@@ -321,6 +444,51 @@ safe_methods:
 
     Oro\Bundle\PricingBundle\Compiler\PriceListRuleCompiler:
         getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\EventListener\RestrictProductsIndexEventListener:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Model\CategoryVisibilityQueryBuilderModifier:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Model\ProductVisibilityQueryBuilderModifier:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Provider\ProductVisibilityProvider:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerCategoryRepository:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupCategoryRepository:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Driver\OrmCustomerPartialUpdateDriver:
+        getCustomerVisibilityFieldName: true
+
+    Oro\Component\EntitySerializer\EntitySerializer:
+        getExistingJoinAlias: true
+
+    Oro\Component\EntitySerializer\FieldAccessor:
+        getFieldsToSelect: true
+
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmFilterDatasourceAdapter:
+        generateParameterName: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\StaticSegmentManager:
+        getFromTableAlias: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\SegmentManager:
+        getIdentifierFieldName: true
+
+    Oro\Bundle\SegmentBundle\Entity\Repository\SegmentSnapshotRepository:
+        getEntityReferenceField: true
+
+    Oro\Bundle\SegmentBundle\Provider\SegmentSnapshotDeltaProvider:
+        getIdentifierFieldName: true
 
 check_methods:
     Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:

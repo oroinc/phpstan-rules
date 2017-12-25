@@ -331,6 +331,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $value instanceof Node\Expr\ConstFetch
             || $value instanceof Node\Expr\Array_
             || $value instanceof Node\Expr\Cast
+            || $value instanceof Node\Expr\Ternary
         );
     }
 
@@ -392,6 +393,20 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
+    private function isUnsafeTernary(Node\Expr $value, Scope $scope): bool
+    {
+        if ($value instanceof Node\Expr\Ternary) {
+            return ($value->if && $this->isUnsafe($value->if, $scope)) || $this->isUnsafe($value->else, $scope);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Node\Expr $value
+     * @param Scope $scope
+     * @return bool
+     */
     private function isUnsafe(Node\Expr $value, Scope $scope): bool
     {
         return $this->isUncheckedType($value)
@@ -404,7 +419,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $this->isUnsafeConcat($value, $scope)
             || $this->isUnsafeEncapsedString($value, $scope)
             || $this->isUnsafeCast($value, $scope)
-            || $this->isUnsafeArray($value, $scope);
+            || $this->isUnsafeArray($value, $scope)
+            || $this->isUnsafeTernary($value, $scope);
     }
 
     /**

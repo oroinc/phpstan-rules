@@ -245,6 +245,80 @@ variables:
             tableName: true
             paramName: true
 
+    Oro\Bundle\SearchBundle\Engine\AbstractIndexer:
+        reindexSingleEntity:
+            orderingsExpr: true
+
+    Oro\Bundle\QueryDesignerBundle\QueryDesigner\SubQueryLimitHelper:
+        setLimit:
+            uniqueIdentifier: true
+
+    Oro\Bundle\NotificationBundle\Provider\EmailNotificationGridHelper:
+        getEntityChoices:
+            select: true
+            entity: true
+
+    Oro\Bundle\IntegrationBundle\Command\CleanupCommand:
+        processDeletion:
+            className: true
+
+    Oro\Bundle\ImportExportBundle\Reader\EntityReader:
+        createSourceEntityQueryBuilder:
+            fieldName: true
+
+    Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
+        apply:
+            objectAlias: true
+
+    Oro\Bundle\BatchBundle\Command\CleanupCommand:
+        processBatch:
+            className: true
+
+    Oro\Bundle\ApiBundle\Util\EntityIdHelper:
+        applyEntityIdentifierRestriction:
+            propertyName: true
+
+    Oro\Bundle\ApiBundle\Processor\Subresource\Shared\AddParentEntityIdToQuery:
+        process:
+            parentJoinAlias: true
+        addJoinToParentEntity:
+            parentClassName: true
+            joinAlias: true
+
+    Oro\Bundle\DataGridBundle\Extension\Totals\OrmTotalsExtension:
+        addPageLimits:
+            field: true
+
+    Oro\Bundle\EmailBundle\Provider\EmailRecipientsHelper:
+        getRecipients:
+            alias: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\EmailUserRepository:
+        findUnseenUserEmail:
+            uoCheck: true
+        applyFolderFilter:
+            expr: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\MailboxRepository:
+        findBySettingsClassAndEmail:
+            settingsClass: true
+
+    Oro\Bundle\EmailBundle\Entity\Provider\EmailThreadProvider:
+        getThreadEmails:
+            criteria: true
+
+    Oro\Bundle\EmailBundle\Datagrid\EmailQueryFactory:
+        addFromEmailAddress:
+            emailAddressTableAlias: true
+        applyAcl:
+            uoCheck: true
+        getOwningExpression:
+            tableAlias: true
+
+    Oro\Bundle\EmailBundle\Datagrid\EmailGridResultHelper:
+        bindEmailAddressOwners:
+            emailAddressAlias: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -376,6 +450,31 @@ properties:
         getEntitiesByIds:
             idFieldName: true
 
+    Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
+        createQueryBuilder:
+            entityName: true
+
+    Oro\Bundle\FormBundle\Autocomplete\SearchHandler:
+        getEntitiesByIds:
+            idFieldName: true
+
+    Oro\Bundle\FormBundle\Form\DataTransformer\EntitiesToIdsTransformer:
+        loadEntitiesByIds:
+            propertyPath: true
+
+    Oro\Bundle\EntityBundle\Form\Handler\EntitySelectHandler:
+        searchEntities:
+            currentField: true
+
+    Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
+        apply:
+            auditAlias: true
+            objectClassParam: true
+
+    Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
+        createActivityQueryBuilder:
+            activityAlias: true
+
 safe_static_methods:
     Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper:
         buildAssociationName: true
@@ -385,6 +484,7 @@ safe_static_methods:
 
     Oro\Component\DoctrineUtils\ORM\QueryBuilderUtil:
         getSingleRootAlias: true
+        getSelectExprByAlias: true
 
 safe_methods:
     Doctrine\ORM\QueryBuilder:
@@ -398,6 +498,12 @@ safe_methods:
     Doctrine\ORM\Mapping\ClassMetadata:
         getSingleIdentifierFieldName: true
         getIdentifierFieldNames: true
+        getIdentifier: true
+
+    Doctrine\Common\Persistence\Mapping\ClassMetadata:
+        getIdentifier: true
+        getIdentifierFieldNames: true
+        getIdentifierValues: true
 
     Doctrine\ORM\Query\Expr:
         literal: true
@@ -489,6 +595,49 @@ safe_methods:
 
     Oro\Bundle\SegmentBundle\Provider\SegmentSnapshotDeltaProvider:
         getIdentifierFieldName: true
+
+    Oro\Bundle\SearchBundle\Formatter\ResultFormatter:
+        getEntityIdentifier: true
+
+    DateTime:
+        format: true
+
+    Oro\Bundle\FormBundle\Validator\Constraints\UnchangeableFieldValidator:
+        getIdentifier: true
+
+    Oro\Bundle\EntityMergeBundle\Doctrine\DoctrineHelper:
+        getSingleIdentifierFieldName: true
+        getEntityIdentifierValue: true
+        getEntityIds: true
+
+    Oro\Bundle\ActivityListBundle\Entity\Repository\ActivityListRepository:
+        getAssociationName: true
+
+    Oro\Bundle\ApiBundle\Processor\Subresource\Shared\AddParentEntityIdToQuery:
+        getJoinFieldName: true
+
+    Oro\Bundle\DataGridBundle\Entity\Repository\GridViewUserRepository:
+        getUserFieldName: true
+
+    Oro\Bundle\DataGridBundle\Entity\Repository\GridViewRepository:
+        getOwnerFieldName: true
+        getUserFieldName: true
+
+    Oro\Bundle\EmailBundle\Filter\ChoiceMessageTypeFilter:
+        getUserOwnerFieldName: true
+        createDQLWithReplacedAliases: true
+
+    Oro\Bundle\EmailBundle\Entity\Provider\EmailOwnerProviderStorage:
+        getEmailOwnerFieldName: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\EmailRepository:
+        getAclWhereCondition: true
+
+    Oro\Bundle\EmailBundle\Datagrid\EmailQueryFactory:
+        getOwningExpression: true
+
+    Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface:
+        generateParameterName: true
 
 check_methods:
     Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:

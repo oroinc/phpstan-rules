@@ -17,7 +17,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     const SAFE_FUNCTIONS = [
         'sprintf' => true,
         'implode' => true,
-        'reset' => true
+        'reset' => true,
+        'current' => true
     ];
 
     const VAR = 'variables';

@@ -22,4 +22,17 @@ To check codebase for unsafe DQL usages do the following actions:
  - run check with `./vendor/bin/phpstan analyze -c config.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
 
 In a minute analise results will be available. Each of them should be checked carefully, if needed unsafe variables should be santized or escaped to be safe.
-If variable or method is safe it may be added to `trusted_data.neon` and will be skipped during further checks. 
+If variable, property or method is safe it may be added to `trusted_data.neon` and will be skipped during further checks.
+In case when all ore some methods of class should be checked this class with methods should be added to `check_methods` section.
+Use `__all__: true` to notify checker that all methods of class should be checked. If only certain arguments of method requires check their positions whould be added
+in array.
+
+For example there is SomeClass and we want to check all it's methods, except `method1` for which we want to enable 
+only first and third argument checks and for `method2` we want all arguments to be checked:
+```yml
+check_methods:
+    SomeClass:
+        __all__: true
+        method1: [0, 2]
+        mrthod2: true
+```

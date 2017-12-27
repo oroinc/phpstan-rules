@@ -4,6 +4,7 @@ parameters:
         - */Testing/*
         - */Symfony/*
         - */Migrations/*
+        - */Migration/*
         - */Bundle/TrackingBundle/Resources/public/lib/tracking.php
     customRulesetUsed: true
     checkThisOnly: false

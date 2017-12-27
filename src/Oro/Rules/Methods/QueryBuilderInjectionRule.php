@@ -12,20 +12,29 @@ use PHPStan\Type\IntegerType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
 
+/**
+ * Check methods listed in trusted_data.neon for unsafe calls.
+ */
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
+    const TRUSTED_DATA_FILE = 'trusted_data.neon';
+
     const SAFE_FUNCTIONS = [
         'sprintf' => true,
         'implode' => true,
+        'join' => true,
         'reset' => true,
         'current' => true
     ];
 
     const VAR = 'variables';
+    const PROPERTIES = 'properties';
+
     const METHODS = 'safe_methods';
     const STATIC_METHODS = 'safe_static_methods';
-    const PROPERTIES = 'properties';
+
     const CHECK_METHODS = 'check_methods';
+    const ALL_METHODS = '__all__';
 
     /**
      * @var \PHPStan\Rules\RuleLevelHelper
@@ -70,10 +79,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $this->ruleLevelHelper = $ruleLevelHelper;
         $this->checkThisOnly = $checkThisOnly;
         $this->printer = $printer;
-        $this->trustedData = Neon::decode(\file_get_contents('trusted_data.neon'));
+        $this->loadTrustedData();
     }
 
     /**
+     * Apply for all node types, as we need to process assigns and method calls.
+     *
      * {@inheritdoc}
      */
     public function getNodeType(): string
@@ -98,6 +109,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Check that all arguments of function are safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -106,7 +119,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         if ($value instanceof Node\Expr\FuncCall) {
             if ($value->name instanceof Node\Name
-                && !empty(self::SAFE_FUNCTIONS[$value->name->toString()])) {
+                && !empty(self::SAFE_FUNCTIONS[\strtolower($value->name->toString())])) {
                 foreach ($value->args as $arg) {
                     if ($this->isUnsafe($arg->value, $scope)) {
                         return true;
@@ -121,19 +134,25 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * If static method is whitelisted it is considered as safe.
+     *
      * @param Node\Expr $value
      * @return bool
      */
     private function isUnsafeStaticMethodCall(Node\Expr $value): bool
     {
         if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
-            return empty($this->trustedData[self::STATIC_METHODS][$value->class->toString()][$value->name]);
+            $className = $value->class->toString();
+            $methodName = \strtolower($value->name);
+            return empty($this->trustedData[self::STATIC_METHODS][$className][$methodName]);
         }
 
         return false;
     }
 
     /**
+     * Check that method is whitelisted or it's arguments are safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @param array $errors
@@ -143,6 +162,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         $errors = [];
         if ($value instanceof Node\Expr\MethodCall) {
+            // Mark method safe if it's returned type is boolean or numeric
             $valueType = $scope->getType($value);
             if ($valueType instanceof IntegerType
                 || $valueType instanceof FloatType
@@ -152,29 +172,31 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
 
             $argsCount = \count($value->args);
+            // Check only methods that are called on object or $this
             $type = $scope->getType($value->var);
             if (!$type instanceof ObjectType && !$type instanceof ThisType) {
                 return true;
             }
             $className = $type->getClassName();
 
+            if (!\is_string($value->name)) {
+                return true;
+            }
+
+            // Consider Doctrine\ORM\EntityRepository::getEntityName as safe
             if ($value->name === 'getEntityName' && \is_a($className, 'Doctrine\ORM\EntityRepository', true)) {
                 return false;
             }
 
+            $lowerMethodName = \strtolower($value->name);
             $checkArg = function ($pos) use ($className, $value, $scope, &$errors) {
                 if ($this->isUnsafe($value->args[$pos]->value, $scope)) {
-                    if ($value->name instanceof Node\Expr\Variable) {
-                        $methodName = $value->name->name;
-                    } else {
-                        $methodName = $value->name;
-                    }
                     $errors[] = \sprintf(
                         'Unsafe calling method %s::%s. ' . PHP_EOL .
                         'Argument %d contains unsafe values %s. ' . PHP_EOL .
                         'Class %s, method %s',
                         $className,
-                        $methodName,
+                        $value->name,
                         $pos,
                         $this->printer->prettyPrint([$value->args[$pos]]),
                         $scope->getClassReflection()->getName(),
@@ -183,60 +205,45 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 }
             };
 
-            if (\is_string($value->name) && !empty($this->trustedData[self::METHODS][$className][$value->name])) {
+            // Whitelisted methods are safe
+            if (!empty($this->trustedData[self::METHODS][$className][$lowerMethodName])) {
                 return false;
             }
 
-            switch ($className) {
-                case 'Doctrine\\ORM\\QueryBuilder':
-                    if (\strpos($value->name, 'get') === 0) {
-                        return false;
-                    }
-                    if (\stripos($value->name, 'where') !== false
-                        || \stripos($value->name, 'having') !== false
-                    ) {
-                        $checkArg(0);
-                    } elseif (\stripos($value->name, 'join') !== false) {
-                        $checkArg(0);
-                        if (isset($node->args[3])) {
-                            $checkArg(3);
-                        }
-                    } else {
-                        for ($i = 0; $i < $argsCount; $i++) {
-                            $checkArg($i);
+            if (isset($this->trustedData[self::CHECK_METHODS][$className])) {
+                // If method is listed in check methods and only certain arguments should be checked - check them
+                if (isset($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName])
+                    && \is_array($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName])) {
+                    foreach ($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName] as $argNum) {
+                        if (isset($value->args[$argNum])) {
+                            $checkArg($argNum);
                         }
                     }
-
-                    return !empty($errors);
-
-                case 'Doctrine\\ORM\\Query\\Expr':
-                    if ($value->name === 'in' || $value->name === 'notIn') {
-                        $checkArg(0);
-                    } else {
-                        for ($i = 0; $i < $argsCount; $i++) {
-                            $checkArg($i);
-                        }
+                } elseif ((isset($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName])
+                        && $this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName] === true
+                    )
+                    || !empty($this->trustedData[self::CHECK_METHODS][$className][self::ALL_METHODS])
+                ) {
+                    // Check all arguments if method is marked for checks or method is in class marked for checking all
+                    for ($i = 0; $i < $argsCount; $i++) {
+                        $checkArg($i);
                     }
+                }
 
-                    return !empty($errors);
-
-                default:
-                    if (!empty($this->trustedData[self::CHECK_METHODS][$className][$value->name])) {
-                        for ($i = 0; $i < $argsCount; $i++) {
-                            $checkArg($i);
-                        }
-
-                        return !empty($errors);
-                    }
-
-                    return true;
+                // If there are errors consider method as unsafe
+                return !empty($errors);
             }
+
+            // All unchecked methods are unsafe
+            return true;
         }
 
         return false;
     }
 
     /**
+     * Check that all parts of concat are safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -251,6 +258,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Check that variable is whitelisted or was considered safe during assignment.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -260,14 +269,18 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if ($value instanceof Node\Expr\Variable) {
             $className = $scope->getClassReflection()->getName();
 
-            return empty($this->trustedData[self::VAR][$className][$scope->getFunctionName()][$value->name])
-                && empty($this->localTrustedVars[$scope->getFile()][$scope->getFunctionName()][$value->name]);
+            $functionName = \strtolower($scope->getFunctionName());
+            $varName = \strtolower($value->name);
+            return empty($this->trustedData[self::VAR][$className][$functionName][$varName])
+                && empty($this->localTrustedVars[$scope->getFile()][$functionName][$varName]);
         }
 
         return false;
     }
 
     /**
+     * Check that property is whitelisted or it is _entityName of some repository.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -285,13 +298,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 return false;
             }
 
-            return empty($this->trustedData[self::PROPERTIES][$className][$scope->getFunctionName()][$value->name]);
+            $functionName = \strtolower($scope->getFunctionName());
+            $varName = \strtolower($value->name);
+            return empty($this->trustedData[self::PROPERTIES][$className][$functionName][$varName]);
         }
 
         return false;
     }
 
     /**
+     * Check that all parts of encapsed are safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -310,6 +327,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Only checked types may be safe. All unchecked types are considered as unsafe by default.
+     *
      * @param Node\Expr $value
      * @return bool
      */
@@ -337,6 +356,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Check that array dim is safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -351,6 +372,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Check that all array elements are safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -359,7 +382,9 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         if ($value instanceof Node\Expr\Array_) {
             foreach ($value->items as $arrayItem) {
-                if ($this->isUnsafe($arrayItem->value, $scope)) {
+                if (($arrayItem->key && $this->isUnsafe($arrayItem->key, $scope))
+                    || $this->isUnsafe($arrayItem->value, $scope)
+                ) {
                     return true;
                 }
             }
@@ -369,6 +394,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Consider variables casted to boolean or numeric as safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -390,6 +417,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Check that if-else branches of ternary operator are safe.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -404,6 +433,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Check node safety.
+     *
      * @param Node\Expr $value
      * @param Scope $scope
      * @return bool
@@ -425,13 +456,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Gather information about variable safety during assignment.
+     *
      * @param Node\Expr\Assign $node
      * @param Scope $scope
      */
     private function processAssigns(Node\Expr\Assign $node, Scope $scope)
     {
         $trustVariable = function ($name) use ($scope) {
-            $this->localTrustedVars[$scope->getFile()][$scope->getFunctionName()][$name] = true;
+            $functionName = \strtolower($scope->getFunctionName());
+            $varName = \strtolower($name);
+            $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
         };
 
         if ($this->currentFile !== $scope->getFile()) {
@@ -467,5 +502,42 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $this->isUnsafeMethodCall($node, $scope, $errors);
 
         return $errors;
+    }
+
+    /**
+     * Load trusted data.
+     * Convert all function and variable names to lower case.
+     */
+    protected function loadTrustedData()
+    {
+        $loadedData = Neon::decode(\file_get_contents(self::TRUSTED_DATA_FILE));
+        $data = [];
+
+        $lowerVariables = function ($loaded, $key) use (&$data) {
+            foreach ($loaded[$key] as $class => $methods) {
+                foreach ($methods as $method => $variables) {
+                    $lowerMethod = \strtolower($method);
+                    $data[$key][$class][$lowerMethod] = [];
+                    foreach ($variables as $variable => $varData) {
+                        $data[$key][$class][$lowerMethod][strtolower($variable)] = $varData;
+                    }
+                }
+            }
+        };
+        $lowerVariables($loadedData, self::VAR);
+        $lowerVariables($loadedData, self::PROPERTIES);
+
+        $lowerMethods = function ($loaded, $key) use (&$data) {
+            foreach ($loaded[$key] as $class => $methods) {
+                foreach ($methods as $method => $methodData) {
+                    $data[$key][$class][strtolower($method)] = $methodData;
+                }
+            }
+        };
+        $lowerMethods($loadedData, self::METHODS);
+        $lowerMethods($loadedData, self::CHECK_METHODS);
+        $lowerMethods($loadedData, self::STATIC_METHODS);
+
+        $this->trustedData = $data;
     }
 }

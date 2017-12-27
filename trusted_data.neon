@@ -319,6 +319,19 @@ variables:
         bindEmailAddressOwners:
             emailAddressAlias: true
 
+    Oro\Bundle\AnalyticsBundle\Model\RFMMetricStateManager:
+        executeResetQuery:
+            type: true
+            className: true
+
+    Oro\Bundle\ChannelBundle\Entity\Repository\LifetimeValueAverageAggregationRepository:
+        getAggregatedValue:
+            calculationPeriodEnd: true
+
+    Oro\Bundle\InventoryBundle\CacheWarmer\EntityConfigRelationsMigration:
+        migrate:
+           warehouseClass: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -492,13 +505,39 @@ safe_methods:
         setParameters: true
         setMaxResults: true
         setFirstResult: true
+        getAllAliases: true
         getRootAliases: true
         getRootAlias: true
+        getRootEntities: true
+        getMaxResults: true
+        getFirstResult: true
+
+    Doctrine\DBAL\Query\QueryBuilder:
+        setParameter: true
+        setParameters: true
+        setMaxResults: true
+        setFirstResult: true
+        getAllAliases: true
+        getRootAliases: true
+        getRootAlias: true
+        getRootEntities: true
+        getMaxResults: true
+        getFirstResult: true
+
 
     Doctrine\ORM\Mapping\ClassMetadata:
         getSingleIdentifierFieldName: true
         getIdentifierFieldNames: true
         getIdentifier: true
+        getTableName: true
+        getAssociationMapping: true
+
+    Doctrine\ORM\Mapping\ClassMetadataInfo:
+        getSingleIdentifierFieldName: true
+        getIdentifierFieldNames: true
+        getIdentifier: true
+        getTableName: true
+        getAssociationMapping: true
 
     Doctrine\Common\Persistence\Mapping\ClassMetadata:
         getIdentifier: true
@@ -639,6 +678,64 @@ safe_methods:
     Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface:
         generateParameterName: true
 
+    Oro\Bundle\ChannelBundle\Entity\Channel:
+        getCustomerIdentity: true
+
+    Oro\Bundle\PricingBundle\Sharding\ShardManager:
+        getEnabledShardName: true
+
 check_methods:
     Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:
         getParameterName: true
+
+    Doctrine\ORM\QueryBuilder:
+        __all__: true
+        where: [0]
+        orWhere: [0]
+        andWhere: [0]
+        having: [0]
+        orHaving: [0]
+        andHaving: [0]
+        join: [0, 3]
+        leftJoin: [0, 3]
+        innerJoin: [0, 3]
+
+    Doctrine\DBAL\Query\QueryBuilder:
+        __all__: true
+        where: [0]
+        orWhere: [0]
+        andWhere: [0]
+        having: [0]
+        orHaving: [0]
+        andHaving: [0]
+        join: [0, 3]
+        leftJoin: [0, 3]
+        innerJoin: [0, 3]
+
+    Doctrine\ORM\Query\Expr:
+        __all__: true
+        in: [0]
+        notIn: [0]
+
+    Doctrine\DBAL\Query\Expression\ExpressionBuilder:
+        __all__: true
+
+    Doctrine\DBAL\Connection:
+        fetchAssoc: [0]
+        fetchArray: [0]
+        fetchColumn: [0]
+        fetchAll: [0]
+        delete: [0, 1]
+        update: [0, 1, 2]
+        insert: [0, 1]
+        prepare: true
+        executeQuery: [0]
+        executeCacheQuery: [0]
+        project: [0]
+        query: [0, 1]
+        executeUpdate: [0]
+        exec: true
+
+    Doctrine\ORM\EntityManager:
+        createQuery: true
+        createNativeQuery: true

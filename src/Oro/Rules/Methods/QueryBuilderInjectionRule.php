@@ -103,6 +103,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $this->processAssigns($node, $scope);
         } elseif ($node instanceof Node\Expr\MethodCall) {
             return $this->processMethodCalls($node, $scope);
+        } elseif ($node instanceof Node\Expr\StaticCall) {
+            $this->processStaticMethodCall($node, $scope);
         }
 
         return [];
@@ -539,5 +541,27 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $lowerMethods($loadedData, self::STATIC_METHODS);
 
         $this->trustedData = $data;
+    }
+
+    /**
+     * @param Node $value
+     * @param Scope $scope
+     */
+    private function processStaticMethodCall(Node $value, Scope $scope)
+    {
+        if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
+            $className = $value->class->toString();
+
+            $methodName = \strtolower($value->name);
+            // Trust variables checked by QueryBuilderUtil::checkIdentifier
+            if ($className === 'Oro\\Component\\DoctrineUtils\\ORM\\QueryBuilderUtil'
+                && $methodName === 'checkidentifier'
+                && $value->args[0]->value instanceof Node\Expr\Variable
+            ) {
+                $functionName = \strtolower($scope->getFunctionName());
+                $varName = \strtolower($value->args[0]->value->name);
+                $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
+            }
+        }
     }
 }

@@ -1,8 +1,4 @@
 variables:
-    Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
-        getEventListQueryBuilder:
-            field: true
-
     Oro\Bundle\CalendarBundle\Manager\AttendeeRelationManager:
         addRelatedEntityInfo:
            userName: true
@@ -332,6 +328,27 @@ variables:
         migrate:
            warehouseClass: true
 
+    Oro\Bundle\FrontendBundle\CacheWarmer\ClassMigration:
+        migrateTableColumn:
+            table: true
+            column: true
+
+    Oro\Bundle\CustomerBundle\Form\Type\FrontendOwnerSelectType:
+        configureOptions:
+            criteria: true
+
+    Oro\Bundle\SecurityProBundle\Acl\Dbal\MutableAclProvider:
+        hydrateSecurityIdentities:
+            sql: true
+
+    Oro\Bundle\UserProBundle\Command\PasswordExpirationNotificationCommand:
+        execute:
+            conditions: true
+
+    Oro\Bundle\MultiCurrencyBundle\Datagrid\ConvertedValueColumnListener:
+        onBuildAfter:
+            query: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -498,6 +515,9 @@ safe_static_methods:
     Oro\Component\DoctrineUtils\ORM\QueryBuilderUtil:
         getSingleRootAlias: true
         getSelectExprByAlias: true
+        getPageOffset: true
+        sprintf: true
+        getField: true
 
 safe_methods:
     Doctrine\ORM\QueryBuilder:
@@ -574,6 +594,9 @@ safe_methods:
 
     Oro\Bundle\EwsBundle\Sync\EwsEmailSynchronizer:
         getEmailOriginClass: true
+
+    Oro\Bundle\EmailBundle\Entity\Manager\EmailAddressManager:
+        getEmailAddressProxyClass: true
 
     Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
         getEntityClass: true
@@ -684,21 +707,49 @@ safe_methods:
     Oro\Bundle\PricingBundle\Sharding\ShardManager:
         getEnabledShardName: true
 
+    Doctrine\Common\Collections\Criteria:
+        getMaxResults: true
+        getFirstResult: true
+
 check_methods:
     Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:
         getParameterName: true
 
-#    Doctrine\ORM\QueryBuilder:
-#        __all__: true
-#        where: [0]
-#        orWhere: [0]
-#        andWhere: [0]
-#        having: [0]
-#        orHaving: [0]
-#        andHaving: [0]
-#        join: [0, 3]
-#        leftJoin: [0, 3]
-#        innerJoin: [0, 3]
+    Doctrine\ORM\QueryBuilder:
+        __all__: true
+        where: [0]
+        orWhere: [0]
+        andWhere: [0]
+        having: [0]
+        orHaving: [0]
+        andHaving: [0]
+        join: [0, 3]
+        leftJoin: [0, 3]
+        innerJoin: [0, 3]
+
+    Oro\Component\DoctrineUtils\ORM\SqlQueryBuilder:
+        __all__: true
+        where: [0]
+        orWhere: [0]
+        andWhere: [0]
+        having: [0]
+        orHaving: [0]
+        andHaving: [0]
+        join: [0, 3]
+        leftJoin: [0, 3]
+        innerJoin: [0, 3]
+
+    Oro\Bundle\EntityBundle\ORM\SqlQueryBuilder:
+        __all__: true
+        where: [0]
+        orWhere: [0]
+        andWhere: [0]
+        having: [0]
+        orHaving: [0]
+        andHaving: [0]
+        join: [0, 3]
+        leftJoin: [0, 3]
+        innerJoin: [0, 3]
 
     Doctrine\DBAL\Query\QueryBuilder:
         __all__: true
@@ -712,10 +763,16 @@ check_methods:
         leftJoin: [0, 3]
         innerJoin: [0, 3]
 
-#    Doctrine\ORM\Query\Expr:
-#        __all__: true
-#        in: [0]
-#        notIn: [0]
+    Doctrine\Common\Collections\Criteria:
+        where: true
+        orWhere: true
+        andWhere: true
+        orderBy: true
+
+    Doctrine\ORM\Query\Expr:
+        __all__: true
+        in: [0]
+        notIn: [0]
 
     Doctrine\DBAL\Query\Expression\ExpressionBuilder:
         __all__: true

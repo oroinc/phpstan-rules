@@ -2,10 +2,13 @@ parameters:
     excludes_analyse:
         - */Tests/*
         - */Testing/*
+        - */TestFramework*
+        - */Oro/Component/DoctrineUtils/ORM/SqlQueryBuilder.php
         - */Symfony/*
         - */Migrations/*
         - */Migration/*
         - */Bundle/TrackingBundle/Resources/public/lib/tracking.php
+        - */views/*
     customRulesetUsed: true
     checkThisOnly: false
 

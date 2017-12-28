@@ -1,0 +1,741 @@
+variables:
+    Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
+        getEventListQueryBuilder:
+            field: true
+
+    Oro\Bundle\CalendarBundle\Manager\AttendeeRelationManager:
+        addRelatedEntityInfo:
+           userName: true
+
+    Oro\Bundle\CalendarBundle\Provider\CalendarPropertyProvider:
+        getItems:
+            selectItems: true
+
+    Oro\Bridge\MarketingCRM\Entity\Repository\ChannelRepository:
+        getVisitsCountForChannelTypeQB:
+            entityName: true
+
+    Oro\Bundle\MagentoBundle\Service\AutomaticDiscovery:
+        discoverSimilar:
+            organizationField: true
+
+    Oro\Bundle\CustomerBundle\EventListener\Datagrid\CustomerUserRoleDatagridListener:
+        onBuildAfter:
+            criteria: true
+
+    Oro\Bundle\CustomerBundle\Handler\CustomerAssignHelper:
+        hasAssignments:
+            association: true
+
+    Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
+        searchEntities:
+            idFieldName: true
+
+    Oro\Bundle\MarketingListBundle\Provider\MarketingListProvider:
+        getMarketingListEntitiesQueryBuilder:
+            entityAlias: true
+
+    Oro\Bundle\MarketingActivityBundle\Entity\Repository\MarketingActivityRepository:
+        applyPageFilter:
+            orderDirection: true
+
+    Oro\Bundle\CampaignBundle\Entity\Repository\CampaignRepository:
+        getCampaignsLeadsQB:
+            leadAlias: true
+        getCampaignsOpportunitiesQB:
+            opportunitiesAlias: true
+        getCampaignsByCloseRevenueQB:
+            opportunitiesAlias: true
+
+    Oro\Bundle\TaskBundle\EventListener\Datagrid\UserTaskGridListener:
+        onBuildAfter:
+            userId: true
+
+    Oro\Bundle\DotmailerBundle\Entity\Repository\AddressBookContactRepository:
+        bulkUpdateFlagByEntity:
+            flagColumn: true
+
+    Oro\Bundle\DotmailerBundle\QueryDesigner\ParentEntityFindQueryConverter:
+        addSelectStatement:
+            tableAlias: true
+            idField: true
+
+    Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
+        deleteMailChimpMembersExtendedVars:
+            staticSegmentId: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
+        getIteratorQueryBuilder:
+            ownerId: true
+            channelId: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Strategy\MemberActivityImportStrategy:
+        findOneBy:
+            entityName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
+        createQueryBuilder:
+            identifierFieldName: true
+
+    Oro\Bundle\MagentoBundle\EventListener\ChannelOwnerSetListener:
+        updateMagentoEntity:
+            newOwnerId: true
+            entityName: true
+
+    Oro\Bundle\MagentoBundle\Manager\MagentoDeleteProvider:
+        removeWorkflowDefinitions:
+            entityClassName: true
+
+    Oro\Bundle\ChannelBundle\Entity\Repository\LifetimeHistoryRepository:
+        calculateAccountLifetime:
+            customerAlias: true
+
+    Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:
+        applyPriceListLimitations:
+            rootAlias: true
+            limitationQb: true
+
+    Oro\Bundle\PricingBundle\Entity\Repository\CombinedPriceListRepository:
+        getUnusedPriceListsIds:
+            entityName: true
+            alias: true
+        hasOtherRelations:
+            alias: true
+            class: true
+            expr: true
+
+    Oro\Bundle\PricingBundle\Expression\PriceListQueryConverterExtension:
+        joinPriceListPrices:
+            priceListTableAlias: true
+
+    Oro\Bundle\PricingBundle\Sharding\ShardManager:
+        getShardsAttributes:
+            targetFieldName: true
+
+    Oro\Bundle\PricingBundle\Compiler\ProductAssignmentRuleCompiler:
+        restrictByManualPrices:
+            rootAlias: true
+            subQb: true
+
+    Oro\Bundle\PricingBundle\Compiler\PriceListRuleCompiler:
+        restrictByManualPrices:
+            rootAlias: true
+        restrictByAssignedProducts:
+            rootAlias: true
+
+    Oro\Bundle\ProductBundle\Model\ProductVisibilityQueryBuilderModifier:
+        addWhereInExpr:
+            rootAlias: true
+
+    Oro\Bundle\RedirectBundle\Async\SluggableEntitiesProcessor:
+        getEntityIds:
+            identifierFieldName: true
+
+    Oro\Bundle\SEOBundle\EventListener\RestrictSitemapCmsPageByWebCatalogListener:
+        getWebCatalogEntityIdsQueryBuilder:
+            rootAlias: true
+
+    Oro\Bundle\ShoppingListBundle\Form\Type\FrontendLineItemWidgetType:
+        buildForm:
+            criteria: true
+
+    Oro\Bundle\TaxBundle\Entity\Repository\TaxRuleRepository:
+        joinTaxCodes:
+            alias: true
+
+    Oro\Bundle\VisibilityBundle\EventListener\RestrictProductsIndexEventListener:
+        getVisibilityQueryBuilder:
+            visibilityAlias: true
+
+    Oro\Bundle\VisibilityBundle\EventListener\ProductDuplicateListener:
+        duplicateVisibility:
+            className: true
+
+    # visibility passed as integer but without additional checkes or typehints
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeGroupSubtreeCacheBuilder:
+        updateGroupCategoryVisibility:
+            visibility: true
+        updateProductVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeCustomerSubtreeCacheBuilder:
+        updateCustomerProductVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeCategorySubtreeCacheBuilder:
+        updateProductVisibilityByCategory:
+            visibility: true
+        updateCategoryVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\AbstractRelatedEntitiesAwareSubtreeCacheBuilder:
+        updateCustomerGroupsProductVisibility:
+            visibility: true
+        updateCustomersProductVisibility:
+            visibility: true
+        updateCustomersCategoryVisibility:
+            visibility: true
+        updateCustomerGroupsCategoryVisibility:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
+        updateCategoryVisibilityByCategory:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\ProductRepository:
+        getVisibilitiesByCategoryQb:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupCategoryRepository:
+        insertParentCategoryValues:
+            visibility: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\AbstractSubtreeCacheBuilder:
+        getChildCategoriesIdsWithFallbackToParent:
+            node: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupProductRepository:
+        insertByProduct:
+            productVisibility: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerProductRepository:
+        insertByProduct:
+            productVisibility: true
+        getSubQueryOfExistsVisibilities:
+            parentAlias: true
+
+    Oro\Bundle\VisibilityBundle\Driver\OrmCustomerPartialUpdateDriver:
+        addCustomerVisibility:
+           customerVisibilityFieldName: true
+        getIndexIntegerQueryBuilder:
+            alias: true
+
+    Oro\Component\EntitySerializer\QueryFactory:
+        getToManyAssociationQueryBuilder:
+            associationMapping: true
+
+    Oro\Component\EntitySerializer\EntitySerializer:
+        updateQuery:
+            propertyPath: true
+        updateSelectQueryPart:
+            alias: true
+
+    Oro\Bundle\ActivityBundle\Autocomplete\ContextSearchHandler:
+        getAssociatedTargetEntitiesQueryBuilder:
+            entityClass: true
+
+    Oro\Bundle\WorkflowBundle\Entity\Repository\ProcessDefinitionRepository:
+        findLikeName:
+            escapeChar: true
+
+    Oro\Bundle\TagBundle\Security\SecurityProvider:
+        applyAcl:
+            tableAlias: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\StaticSegmentManager:
+        getSelectSql:
+            identifier: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\SegmentManager:
+        getFilterSubQuery:
+            tableIdentifier: true
+
+    Oro\Bundle\SegmentBundle\Entity\Repository\SegmentSnapshotRepository:
+        getIdentifiersSelectQueryBuilder:
+            tableName: true
+            paramName: true
+
+    Oro\Bundle\SearchBundle\Engine\AbstractIndexer:
+        reindexSingleEntity:
+            orderingsExpr: true
+
+    Oro\Bundle\QueryDesignerBundle\QueryDesigner\SubQueryLimitHelper:
+        setLimit:
+            uniqueIdentifier: true
+
+    Oro\Bundle\NotificationBundle\Provider\EmailNotificationGridHelper:
+        getEntityChoices:
+            select: true
+            entity: true
+
+    Oro\Bundle\IntegrationBundle\Command\CleanupCommand:
+        processDeletion:
+            className: true
+
+    Oro\Bundle\ImportExportBundle\Reader\EntityReader:
+        createSourceEntityQueryBuilder:
+            fieldName: true
+
+    Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
+        apply:
+            objectAlias: true
+
+    Oro\Bundle\BatchBundle\Command\CleanupCommand:
+        processBatch:
+            className: true
+
+    Oro\Bundle\ApiBundle\Util\EntityIdHelper:
+        applyEntityIdentifierRestriction:
+            propertyName: true
+
+    Oro\Bundle\ApiBundle\Processor\Subresource\Shared\AddParentEntityIdToQuery:
+        process:
+            parentJoinAlias: true
+        addJoinToParentEntity:
+            parentClassName: true
+            joinAlias: true
+
+    Oro\Bundle\DataGridBundle\Extension\Totals\OrmTotalsExtension:
+        addPageLimits:
+            field: true
+
+    Oro\Bundle\EmailBundle\Provider\EmailRecipientsHelper:
+        getRecipients:
+            alias: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\EmailUserRepository:
+        findUnseenUserEmail:
+            uoCheck: true
+        applyFolderFilter:
+            expr: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\MailboxRepository:
+        findBySettingsClassAndEmail:
+            settingsClass: true
+
+    Oro\Bundle\EmailBundle\Entity\Provider\EmailThreadProvider:
+        getThreadEmails:
+            criteria: true
+
+    Oro\Bundle\EmailBundle\Datagrid\EmailQueryFactory:
+        addFromEmailAddress:
+            emailAddressTableAlias: true
+        applyAcl:
+            uoCheck: true
+        getOwningExpression:
+            tableAlias: true
+
+    Oro\Bundle\EmailBundle\Datagrid\EmailGridResultHelper:
+        bindEmailAddressOwners:
+            emailAddressAlias: true
+
+    Oro\Bundle\AnalyticsBundle\Model\RFMMetricStateManager:
+        executeResetQuery:
+            type: true
+            className: true
+
+    Oro\Bundle\ChannelBundle\Entity\Repository\LifetimeValueAverageAggregationRepository:
+        getAggregatedValue:
+            calculationPeriodEnd: true
+
+    Oro\Bundle\InventoryBundle\CacheWarmer\EntityConfigRelationsMigration:
+        migrate:
+           warehouseClass: true
+
+properties:
+    Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
+        searchEntities:
+            idFieldName: true
+
+    Oro\Bundle\AbandonedCartBundle\Model\AbandonedCartList\Tracking\TrackingStatProvider:
+        getStatResult:
+            orderAssociationName: true
+            campaignAssociationName: true
+
+    Oro\Bundle\AbandonedCartBundle\Datagrid\AbandonedCartCampaignListener:
+        onBuildAfter:
+            abandonedCartCampaignClass: true
+
+    Oro\Bundle\AbandonedCartBundle\Datagrid\MarketingListListener:
+        onBuildAfter:
+            abandonedCartCampaignClass: true
+
+    Oro\Bundle\MarketingListBundle\Datagrid\Extension\MarketingListExtension:
+        createItemsQuery:
+            marketingListId: true
+
+    Oro\Bundle\DotmailerBundle\Model\Action\MarketingListStateItemRemoveAction:
+        getMarketingListEntitiesByEmailQueryBuilder:
+            marketingListStateItemClassName: true
+
+    Oro\Bundle\DotmailerBundle\Model\Action\MarketingListStateItemCreateAction:
+        getMarketingListEntitiesByEmailQueryBuilder:
+            marketingListStateItemClassName: true
+
+    Oro\Bundle\DotmailerBundle\Provider\MarketingListItemsQueryBuilderProvider:
+        getRemovedMarketingListItemsQB:
+            addressBookContactClassName: true
+
+    Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
+        handleDroppedMembers:
+            staticSegmentMember: true
+        deleteMailChimpMembers:
+            mailChimpMemberСlassName: true
+        deleteMailChimpMembersExtendedVars:
+            extMergeVarClassName: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\AbstractStaticSegmentMembersIterator:
+        matchMembersByEmail:
+            memberClassName: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MarketingListEmailIterator:
+        prepareIteratorPart:
+            unsubscribedItemClassName: true
+            removedItemClassName: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberDroppedStateIterator:
+        createSubordinateIterator:
+            memberExtendedMergeVarEntity: true
+            memberEntity: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberRemoveStateIterator:
+        createSubordinateIterator:
+            marketingListEmailEntity: true
+            memberEntity: true
+
+    Oro\Bundle\MailChimpBundle\Acl\Voter\MarketingListStateItemVoter:
+        getQueryBuilder:
+            marketingListClassName: true
+            memberClassName: true
+            subscriberListClassName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
+        createQueryBuilder:
+            entityName: true
+            field: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberAddStateIterator:
+        createSubordinateIterator:
+            memberEntity: true
+            marketingListEmailEntity: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberToRemoveIterator:
+        createSubordinateIterator:
+            memberToRemoveEntity: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\AbstractStaticSegmentIterator:
+        prepareIteratorPart:
+            unsubscribedItemClassName: true
+            removedItemClassName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Reader\StaticSegmentReader:
+        getStaticSegmentIterator:
+            marketingListClassName: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Writer\RemoveWriter:
+        createQueryBuilder:
+            entityName: true
+            field: true
+
+    Oro\Bundle\MailChimpBundle\ImportExport\Writer\StaticSegmentExportWriter:
+        updateStaticSegmentMembersState:
+            staticSegmentMemberClassName: true
+        updateMembersStatus:
+            memberClassName: true
+        deleteListMembers:
+            memberClassName: true
+
+    Oro\Bundle\AnalyticsBundle\Model\RFMMetricStateManager:
+        executeResetQuery:
+            type: true
+
+    Oro\Bundle\SalesBundle\Autocomplete\BusinessCustomerSearchHandler:
+        getEntitiesByIds:
+            idFieldName: true
+
+    Oro\Bundle\PricingBundle\Filter\ProductPriceFilter:
+        qbPrepare:
+            productPriceClass: true
+
+    Oro\Bundle\VisibilityBundle\EventListener\ProductDuplicateListener:
+        duplicateVisibility:
+            fieldName: true
+
+    Oro\Component\MessageQueue\Job\JobStorage:
+        createJobQueryBuilder:
+            entityClass: true
+
+    Oro\Bundle\WorkflowBundle\Datagrid\GridEntityNameProvider:
+        getRelatedEntitiesChoice:
+            entityName: true
+
+    Oro\Bundle\UserBundle\Autocomplete\WidgetRoleSearchHandler:
+        getEntitiesByIds:
+            idFieldName: true
+
+    Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
+        createQueryBuilder:
+            entityName: true
+
+    Oro\Bundle\FormBundle\Autocomplete\SearchHandler:
+        getEntitiesByIds:
+            idFieldName: true
+
+    Oro\Bundle\FormBundle\Form\DataTransformer\EntitiesToIdsTransformer:
+        loadEntitiesByIds:
+            propertyPath: true
+
+    Oro\Bundle\EntityBundle\Form\Handler\EntitySelectHandler:
+        searchEntities:
+            currentField: true
+
+    Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
+        apply:
+            auditAlias: true
+            objectClassParam: true
+
+    Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
+        createActivityQueryBuilder:
+            activityAlias: true
+
+safe_static_methods:
+    Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper:
+        buildAssociationName: true
+
+    Oro\Bundle\SalesBundle\Entity\Manager\AccountCustomerManager:
+        getCustomerTargetField: true
+
+    Oro\Component\DoctrineUtils\ORM\QueryBuilderUtil:
+        getSingleRootAlias: true
+        getSelectExprByAlias: true
+
+safe_methods:
+    Doctrine\ORM\QueryBuilder:
+        setParameter: true
+        setParameters: true
+        setMaxResults: true
+        setFirstResult: true
+        getAllAliases: true
+        getRootAliases: true
+        getRootAlias: true
+        getRootEntities: true
+        getMaxResults: true
+        getFirstResult: true
+
+    Doctrine\DBAL\Query\QueryBuilder:
+        setParameter: true
+        setParameters: true
+        setMaxResults: true
+        setFirstResult: true
+        getAllAliases: true
+        getRootAliases: true
+        getRootAlias: true
+        getRootEntities: true
+        getMaxResults: true
+        getFirstResult: true
+
+
+    Doctrine\ORM\Mapping\ClassMetadata:
+        getSingleIdentifierFieldName: true
+        getIdentifierFieldNames: true
+        getIdentifier: true
+        getTableName: true
+        getAssociationMapping: true
+
+    Doctrine\ORM\Mapping\ClassMetadataInfo:
+        getSingleIdentifierFieldName: true
+        getIdentifierFieldNames: true
+        getIdentifier: true
+        getTableName: true
+        getAssociationMapping: true
+
+    Doctrine\Common\Persistence\Mapping\ClassMetadata:
+        getIdentifier: true
+        getIdentifierFieldNames: true
+        getIdentifierValues: true
+
+    Doctrine\ORM\Query\Expr:
+        literal: true
+
+    Doctrine\ORM\Query\Expr\Base:
+        add: true
+
+    Doctrine\Common\Collections\ArrayCollection:
+        count: true
+
+    Oro\Bundle\DataGridBundle\Datasource\Orm\OrmQueryConfiguration:
+        getRootAlias: true
+
+    Oro\Component\EntitySerializer\DoctrineHelper:
+        getRootAlias: true
+        getEntityIdFieldName: true
+
+    Oro\Bundle\EntityBundle\ORM\DoctrineHelper:
+        getSingleRootAlias: true
+        getSingleEntityIdentifier: true
+        getEntityIdentifierFieldNames: true
+        getEntityIdentifierFieldNamesForClass: true
+        getEntityIdentifier: true
+        getSingleEntityIdentifierFieldName: true
+        getSingleEntityIdentifierFieldType: true
+    
+    Oro\Bundle\CalendarBundle\Entity\Repository\CalendarEventRepository:
+        getBaseFields: true
+
+    Oro\Bundle\EwsBundle\Sync\EwsEmailSynchronizer:
+        getEmailOriginClass: true
+
+    Oro\Bundle\EntityConfigBundle\Attribute\Entity\AttributeFamily:
+        getEntityClass: true
+
+    Oro\Bundle\ActivityContactBundle\Command\ActivityContactRecalculateCommand:
+        getAssociationName: true
+
+    Oro\Bundle\PaymentTermBundle\Manager\PaymentTermManager:
+        getAssociationName: true
+
+    Oro\Bundle\PricingBundle\Expression\PriceListQueryConverterExtension:
+        generateTableAlias: true
+
+    Oro\Bundle\PricingBundle\Compiler\PriceListRuleCompiler:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\EventListener\RestrictProductsIndexEventListener:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Model\CategoryVisibilityQueryBuilderModifier:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Model\ProductVisibilityQueryBuilderModifier:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Provider\ProductVisibilityProvider:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerCategoryRepository:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupCategoryRepository:
+        getRootAlias: true
+
+    Oro\Bundle\VisibilityBundle\Driver\OrmCustomerPartialUpdateDriver:
+        getCustomerVisibilityFieldName: true
+
+    Oro\Component\EntitySerializer\EntitySerializer:
+        getExistingJoinAlias: true
+
+    Oro\Component\EntitySerializer\FieldAccessor:
+        getFieldsToSelect: true
+
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmFilterDatasourceAdapter:
+        generateParameterName: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\StaticSegmentManager:
+        getFromTableAlias: true
+
+    Oro\Bundle\SegmentBundle\Entity\Manager\SegmentManager:
+        getIdentifierFieldName: true
+
+    Oro\Bundle\SegmentBundle\Entity\Repository\SegmentSnapshotRepository:
+        getEntityReferenceField: true
+
+    Oro\Bundle\SegmentBundle\Provider\SegmentSnapshotDeltaProvider:
+        getIdentifierFieldName: true
+
+    Oro\Bundle\SearchBundle\Formatter\ResultFormatter:
+        getEntityIdentifier: true
+
+    DateTime:
+        format: true
+
+    Oro\Bundle\FormBundle\Validator\Constraints\UnchangeableFieldValidator:
+        getIdentifier: true
+
+    Oro\Bundle\EntityMergeBundle\Doctrine\DoctrineHelper:
+        getSingleIdentifierFieldName: true
+        getEntityIdentifierValue: true
+        getEntityIds: true
+
+    Oro\Bundle\ActivityListBundle\Entity\Repository\ActivityListRepository:
+        getAssociationName: true
+
+    Oro\Bundle\ApiBundle\Processor\Subresource\Shared\AddParentEntityIdToQuery:
+        getJoinFieldName: true
+
+    Oro\Bundle\DataGridBundle\Entity\Repository\GridViewUserRepository:
+        getUserFieldName: true
+
+    Oro\Bundle\DataGridBundle\Entity\Repository\GridViewRepository:
+        getOwnerFieldName: true
+        getUserFieldName: true
+
+    Oro\Bundle\EmailBundle\Filter\ChoiceMessageTypeFilter:
+        getUserOwnerFieldName: true
+        createDQLWithReplacedAliases: true
+
+    Oro\Bundle\EmailBundle\Entity\Provider\EmailOwnerProviderStorage:
+        getEmailOwnerFieldName: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\EmailRepository:
+        getAclWhereCondition: true
+
+    Oro\Bundle\EmailBundle\Datagrid\EmailQueryFactory:
+        getOwningExpression: true
+
+    Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface:
+        generateParameterName: true
+
+    Oro\Bundle\ChannelBundle\Entity\Channel:
+        getCustomerIdentity: true
+
+    Oro\Bundle\PricingBundle\Sharding\ShardManager:
+        getEnabledShardName: true
+
+check_methods:
+    Oro\Bundle\PricingBundle\Model\FrontendProductListModifier:
+        getParameterName: true
+
+#    Doctrine\ORM\QueryBuilder:
+#        __all__: true
+#        where: [0]
+#        orWhere: [0]
+#        andWhere: [0]
+#        having: [0]
+#        orHaving: [0]
+#        andHaving: [0]
+#        join: [0, 3]
+#        leftJoin: [0, 3]
+#        innerJoin: [0, 3]
+
+    Doctrine\DBAL\Query\QueryBuilder:
+        __all__: true
+        where: [0]
+        orWhere: [0]
+        andWhere: [0]
+        having: [0]
+        orHaving: [0]
+        andHaving: [0]
+        join: [0, 3]
+        leftJoin: [0, 3]
+        innerJoin: [0, 3]
+
+#    Doctrine\ORM\Query\Expr:
+#        __all__: true
+#        in: [0]
+#        notIn: [0]
+
+    Doctrine\DBAL\Query\Expression\ExpressionBuilder:
+        __all__: true
+
+    Doctrine\DBAL\Connection:
+        fetchAssoc: [0]
+        fetchArray: [0]
+        fetchColumn: [0]
+        fetchAll: [0]
+        delete: [0, 1]
+        update: [0, 1, 2]
+        insert: [0, 1]
+        prepare: true
+        executeQuery: [0]
+        executeCacheQuery: [0]
+        project: [0]
+        query: [0, 1]
+        executeUpdate: [0]
+        exec: true
+
+    Doctrine\ORM\EntityManager:
+        createQuery: true
+        createNativeQuery: true

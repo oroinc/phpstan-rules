@@ -30,11 +30,14 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     const VAR = 'variables';
     const PROPERTIES = 'properties';
 
-    const METHODS = 'safe_methods';
-    const STATIC_METHODS = 'safe_static_methods';
+    const SAFE_METHODS = 'safe_methods';
+    const SAFE_STATIC_METHODS = 'safe_static_methods';
+    const CHECK_METHODS_SAFETY = 'check_methods_safety';
 
+    const CLEAR_METHODS = 'clear_methods';
     const CHECK_METHODS = 'check_methods';
     const ALL_METHODS = '__all__';
+    const CLEAR_STATIC_METHODS = 'clear_static_methods';
 
     /**
      * @var \PHPStan\Rules\RuleLevelHelper
@@ -146,7 +149,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
             $className = $value->class->toString();
             $methodName = \strtolower($value->name);
-            return empty($this->trustedData[self::STATIC_METHODS][$className][$methodName]);
+
+            return empty($this->trustedData[self::SAFE_STATIC_METHODS][$className][$methodName]);
         }
 
         return false;
@@ -180,6 +184,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 return true;
             }
             $className = $type->getClassName();
+            $this->checkClearMethodCall(self::CLEAR_METHODS, $className, $value, $scope);
 
             if (!\is_string($value->name)) {
                 return true;
@@ -191,7 +196,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
 
             $lowerMethodName = \strtolower($value->name);
-            $checkArg = function ($pos) use ($className, $value, $scope, &$errors) {
+            $checkArg = function ($pos, array &$errors = []) use ($className, $value, $scope) {
                 if ($this->isUnsafe($value->args[$pos]->value, $scope)) {
                     $errors[] = \sprintf(
                         'Unsafe calling method %s::%s. ' . PHP_EOL .
@@ -208,32 +213,53 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             };
 
             // Whitelisted methods are safe
-            if (!empty($this->trustedData[self::METHODS][$className][$lowerMethodName])) {
+            if (!empty($this->trustedData[self::SAFE_METHODS][$className][$lowerMethodName])) {
                 return false;
             }
 
-            if (isset($this->trustedData[self::CHECK_METHODS][$className])) {
-                // If method is listed in check methods and only certain arguments should be checked - check them
-                if (isset($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName])
-                    && \is_array($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName])) {
-                    foreach ($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName] as $argNum) {
-                        if (isset($value->args[$argNum])) {
-                            $checkArg($argNum);
+            $checkMethodArguments = function (
+                array $config,
+                array &$errors = []
+            ) use (
+                $className,
+                $value,
+                $argsCount,
+                $lowerMethodName,
+                $checkArg
+            ) {
+                if (isset($config[$className])) {
+                    // If method is listed in check methods and only certain arguments should be checked - check them
+                    if (isset($config[$className][$lowerMethodName])
+                        && \is_array($config[$className][$lowerMethodName])) {
+                        foreach ($config[$className][$lowerMethodName] as $argNum) {
+                            if (isset($value->args[$argNum])) {
+                                $checkArg($argNum, $errors);
+                            }
+                        }
+                    } elseif ((isset($config[$className][$lowerMethodName])
+                            && $config[$className][$lowerMethodName] === true
+                        )
+                        || !empty($config[$className][self::ALL_METHODS])
+                    ) {
+                        // Check all arguments if method is marked for checks or method is in class marked for checking
+                        for ($i = 0; $i < $argsCount; $i++) {
+                            $checkArg($i, $errors);
                         }
                     }
-                } elseif ((isset($this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName])
-                        && $this->trustedData[self::CHECK_METHODS][$className][$lowerMethodName] === true
-                    )
-                    || !empty($this->trustedData[self::CHECK_METHODS][$className][self::ALL_METHODS])
-                ) {
-                    // Check all arguments if method is marked for checks or method is in class marked for checking all
-                    for ($i = 0; $i < $argsCount; $i++) {
-                        $checkArg($i);
-                    }
+
+                    // If there are errors consider method as unsafe
+                    return !empty($errors);
                 }
 
-                // If there are errors consider method as unsafe
-                return !empty($errors);
+                return null;
+            };
+
+            // Methods marked for checked with safe arguments are safe
+            if (($result = $checkMethodArguments($this->trustedData[self::CHECK_METHODS_SAFETY])) !== null) {
+                return $result;
+            }
+            if (($result = $checkMethodArguments($this->trustedData[self::CHECK_METHODS], $errors)) !== null) {
+                return $result;
             }
 
             // All unchecked methods are unsafe
@@ -273,6 +299,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
             $functionName = \strtolower($scope->getFunctionName());
             $varName = \strtolower($value->name);
+
             return empty($this->trustedData[self::VAR][$className][$functionName][$varName])
                 && empty($this->localTrustedVars[$scope->getFile()][$functionName][$varName]);
         }
@@ -302,6 +329,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
             $functionName = \strtolower($scope->getFunctionName());
             $varName = \strtolower($value->name);
+
             return empty($this->trustedData[self::PROPERTIES][$className][$functionName][$varName]);
         }
 
@@ -507,6 +535,35 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * @param Node $node
+     * @param Scope $scope
+     */
+    private function processStaticMethodCall(Node $node, Scope $scope)
+    {
+        if ($node instanceof Node\Expr\StaticCall && $node->class instanceof Node\Name) {
+            $this->checkClearMethodCall(self::CLEAR_STATIC_METHODS, $node->class->toString(), $node, $scope);
+        }
+    }
+
+    /**
+     * Trust variables checked by clear methods
+     *
+     * @param string $type
+     * @param Node|Node\Expr\StaticCall|Node\Expr\MethodCall $value
+     * @param Scope $scope
+     */
+    private function checkClearMethodCall($type, $className, Node $value, Scope $scope)
+    {
+        if (!empty($this->trustedData[$type][$className][\strtolower($value->name)])
+            && $value->args[0]->value instanceof Node\Expr\Variable
+        ) {
+            $functionName = \strtolower($scope->getFunctionName());
+            $varName = \strtolower($value->args[0]->value->name);
+            $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
+        }
+    }
+
+    /**
      * Load trusted data.
      * Convert all function and variable names to lower case.
      */
@@ -536,32 +593,13 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 }
             }
         };
-        $lowerMethods($loadedData, self::METHODS);
+        $lowerMethods($loadedData, self::SAFE_METHODS);
+        $lowerMethods($loadedData, self::CHECK_METHODS_SAFETY);
+        $lowerMethods($loadedData, self::SAFE_STATIC_METHODS);
         $lowerMethods($loadedData, self::CHECK_METHODS);
-        $lowerMethods($loadedData, self::STATIC_METHODS);
+        $lowerMethods($loadedData, self::CLEAR_METHODS);
+        $lowerMethods($loadedData, self::CLEAR_STATIC_METHODS);
 
         $this->trustedData = $data;
-    }
-
-    /**
-     * @param Node $value
-     * @param Scope $scope
-     */
-    private function processStaticMethodCall(Node $value, Scope $scope)
-    {
-        if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
-            $className = $value->class->toString();
-
-            $methodName = \strtolower($value->name);
-            // Trust variables checked by QueryBuilderUtil::checkIdentifier
-            if ($className === 'Oro\\Component\\DoctrineUtils\\ORM\\QueryBuilderUtil'
-                && $methodName === 'checkidentifier'
-                && $value->args[0]->value instanceof Node\Expr\Variable
-            ) {
-                $functionName = \strtolower($scope->getFunctionName());
-                $varName = \strtolower($value->args[0]->value->name);
-                $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
-            }
-        }
     }
 }

@@ -108,6 +108,14 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             return $this->processMethodCalls($node, $scope);
         } elseif ($node instanceof Node\Expr\StaticCall) {
             $this->processStaticMethodCall($node, $scope);
+        } elseif ((
+            $node instanceof Node\Expr\PreInc
+                || $node instanceof Node\Expr\PostInc
+                || $node instanceof Node\Expr\PostDec
+                || $node instanceof Node\Expr\PreDec
+            ) && $node->var instanceof Node\Expr\Variable
+        ) {
+            $this->trustVariable($node->var, $scope);
         }
 
         return [];
@@ -168,6 +176,9 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         $errors = [];
         if ($value instanceof Node\Expr\MethodCall) {
+            if (!\is_string($value->name)) {
+                return true;
+            }
             // Mark method safe if it's returned type is boolean or numeric
             $valueType = $scope->getType($value);
             if ($valueType instanceof IntegerType
@@ -493,12 +504,6 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function processAssigns(Node\Expr\Assign $node, Scope $scope)
     {
-        $trustVariable = function ($name) use ($scope) {
-            $functionName = \strtolower($scope->getFunctionName());
-            $varName = \strtolower($name);
-            $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
-        };
-
         if ($this->currentFile !== $scope->getFile()) {
             unset($this->localTrustedVars[$this->currentFile]);
             $this->currentFile = $scope->getFile();
@@ -506,9 +511,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
         /** @var Node\Expr\Variable $var */
         if (($var = $node->var) instanceof Node\Expr\Variable) {
-            if (!$this->isUnsafe($node->expr, $scope)) {
+            if ($node->expr instanceof Node\Expr\UnaryPlus
+                || $node->expr instanceof Node\Expr\UnaryMinus
+                || !$this->isUnsafe($node->expr, $scope)
+            ) {
                 // Trust safe variables
-                $trustVariable($var->name);
+                $this->trustVariable($var, $scope);
             }
         }
     }
@@ -557,9 +565,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if (!empty($this->trustedData[$type][$className][\strtolower($value->name)])
             && $value->args[0]->value instanceof Node\Expr\Variable
         ) {
-            $functionName = \strtolower($scope->getFunctionName());
-            $varName = \strtolower($value->args[0]->value->name);
-            $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
+            $this->trustVariable($value->args[0]->value, $scope);
         }
     }
 
@@ -601,5 +607,16 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $lowerMethods($loadedData, self::CLEAR_STATIC_METHODS);
 
         $this->trustedData = $data;
+    }
+
+    /**
+     * @param Node\Expr\Variable $var
+     * @param Scope $scope
+     */
+    private function trustVariable(Node\Expr\Variable $var, Scope $scope)
+    {
+        $functionName = \strtolower($scope->getFunctionName());
+        $varName = \strtolower($var->name);
+        $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
     }
 }

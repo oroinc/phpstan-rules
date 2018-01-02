@@ -120,6 +120,13 @@ variables:
             rootAlias: true
         restrictByAssignedProducts:
             rootAlias: true
+        restrictBySupportedUnits:
+            rootAlias: true
+
+    Oro\Bundle\PricingBundle\Entity\Repository\ProductPriceRepository:
+        save:
+            column: true
+            placeholder: true
 
     Oro\Bundle\ProductBundle\Model\ProductVisibilityQueryBuilderModifier:
         addWhereInExpr:
@@ -753,6 +760,12 @@ safe_methods:
 
     Oro\Bundle\MagentoBundle\Service\AutomaticDiscovery\AbstractDiscoveryStrategy:
         getFieldExpr: true
+
+    Oro\Bundle\PricingBundle\EventListener\PriceAttributeProductPriceDatagridListener:
+        buildJoinAlias: true
+
+    Oro\Bundle\PricingBundle\EventListener\ProductPriceDatagridListener:
+        buildJoinAlias: true
 
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:

@@ -382,6 +382,12 @@ variables:
         isUserAssignable:
             criteria: true
 
+    Oro\Bundle\ActivityListBundle\Entity\Manager\ActivityListManager:
+        replaceActivityTargetWithPlainQuery:
+            targetField: true
+            tableName: true
+            activityField: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -537,6 +543,7 @@ properties:
     Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
         createActivityQueryBuilder:
             activityAlias: true
+            activityListAlias: true
 
 safe_static_methods:
     Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper:
@@ -551,6 +558,7 @@ safe_static_methods:
         getPageOffset: true
         sprintf: true
         getField: true
+        getSortOrder: true
 
 safe_methods:
     Doctrine\ORM\QueryBuilder:
@@ -782,6 +790,9 @@ safe_methods:
         getOwnerFieldName: true
         getOrganizationFieldName: true
         getOrganizationColumnName: true
+
+    Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
+        getEntityAlias: true
 
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:

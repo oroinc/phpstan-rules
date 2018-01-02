@@ -68,6 +68,7 @@ variables:
     Oro\Bundle\MailChimpBundle\ImportExport\Strategy\MemberActivityImportStrategy:
         findOneBy:
             entityName: true
+            partialFields: true
 
     Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
         createQueryBuilder:
@@ -766,6 +767,21 @@ safe_methods:
 
     Oro\Bundle\PricingBundle\EventListener\ProductPriceDatagridListener:
         buildJoinAlias: true
+
+    Oro\Bundle\MailChimpBundle\Model\FieldHelper:
+        getFieldExpr: true
+
+    Oro\Bundle\SecurityBundle\Owner\Metadata\OwnershipMetadata:
+        getOwnerColumnName: true
+        getOwnerFieldName: true
+        getOrganizationFieldName: true
+        getOrganizationColumnName: true
+
+    Oro\Bundle\SecurityBundle\Owner\Metadata\OwnershipMetadataInterface:
+        getOwnerColumnName: true
+        getOwnerFieldName: true
+        getOrganizationFieldName: true
+        getOrganizationColumnName: true
 
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:

@@ -3,12 +3,16 @@ parameters:
         - */Tests/*
         - */Testing/*
         - */TestFramework*
-        - */Oro/Component/DoctrineUtils/ORM/SqlQueryBuilder.php
         - */Symfony/*
         - */Migrations/*
         - */Migration/*
-        - */Bundle/TrackingBundle/Resources/public/lib/tracking.php
         - */views/*
+        - */Oro/Component/DoctrineUtils/ORM/SqlQueryBuilder.php
+        - */Oro/Bundle/TrackingBundle/Resources/public/lib/tracking.php
+        - */Oro/Bundle/BatchBundle/ORM/Query/QueryCountCalculator.php
+        - */Oro/Bundle/BatchBundle/ORM/QueryBuilder/CountQueryBuilderOptimizer.php
+        - */Oro/Bundle/InstallerBundle/CacheWarmer/NamespaceMigration.php
+        - */Oro/Bundle/MigrationBundle/Entity/Repository/DataFixtureRepository.php
     customRulesetUsed: true
     checkThisOnly: false
 

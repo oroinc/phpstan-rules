@@ -152,10 +152,13 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Node\Expr $value
      * @return bool
      */
-    private function isUnsafeStaticMethodCall(Node\Expr $value): bool
+    private function isUnsafeStaticMethodCall(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
             $className = $value->class->toString();
+            if ($className === 'self') {
+                $className = $scope->getClassReflection()->getName();
+            }
             $methodName = \strtolower($value->name);
 
             return empty($this->trustedData[self::SAFE_STATIC_METHODS][$className][$methodName]);
@@ -485,7 +488,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         return $this->isUncheckedType($value)
             || $this->isUnsafeVariable($value, $scope)
             || $this->isUnsafeProperty($value, $scope)
-            || $this->isUnsafeStaticMethodCall($value)
+            || $this->isUnsafeStaticMethodCall($value, $scope)
             || $this->isUnsafeFunctionCall($value, $scope)
             || $this->isUnsafeMethodCall($value, $scope)
             || $this->isUnsafeArrayDimFetch($value, $scope)
@@ -549,7 +552,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function processStaticMethodCall(Node $node, Scope $scope)
     {
         if ($node instanceof Node\Expr\StaticCall && $node->class instanceof Node\Name) {
-            $this->checkClearMethodCall(self::CLEAR_STATIC_METHODS, $node->class->toString(), $node, $scope);
+            $className = $node->class->toString();
+            if ($className === 'self') {
+                $className = $scope->getClassReflection()->getName();
+            }
+            $this->checkClearMethodCall(self::CLEAR_STATIC_METHODS, $className, $node, $scope);
         }
     }
 

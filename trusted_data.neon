@@ -388,6 +388,14 @@ variables:
             tableName: true
             activityField: true
 
+    Oro\Bundle\OrganizationBundle\Entity\Repository\OrganizationRepository:
+        getOrganizationsPartialData:
+            fields: true
+
+    Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
+        createQueryBuilder:
+            alias: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
@@ -538,7 +546,9 @@ properties:
     Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
         apply:
             auditAlias: true
+            auditFieldAlias: true
             objectClassParam: true
+            fieldParam: true
 
     Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
         createActivityQueryBuilder:
@@ -559,8 +569,15 @@ safe_static_methods:
         sprintf: true
         getField: true
         getSortOrder: true
+        generateParameterName: true
 
 safe_methods:
+    Doctrine\ORM\Query\Expr\Join:
+        getJoin: true
+        getAlias: true
+        getConditionType: true
+        getIndexBy: true
+
     Doctrine\ORM\QueryBuilder:
         setParameter: true
         setParameters: true
@@ -794,6 +811,35 @@ safe_methods:
     Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
         getEntityAlias: true
 
+    Oro\Bundle\ApiBundle\Config\EntityDefinitionConfig:
+        findFieldNameByPropertyPath: true
+        getIdentifierFieldNames: true
+
+    Oro\Component\EntitySerializer\FieldConfig:
+        getTargetEntity: true
+        getPropertyPath: true
+
+    Oro\Bundle\DashboardBundle\Helper\DateHelper:
+        getTimeZoneOffset: true
+
+    Oro\Bundle\EntityConfigBundle\Provider\ConfigProvider:
+        getScope: true
+
+    Oro\Bundle\EntityConfigBundle\Entity\EntityConfigModel:
+        getClassName: true
+
+    Symfony\Component\Validator\Context\ExecutionContextInterface:
+        getPropertyName: true
+        getClassName: true
+
+    Oro\Bundle\NavigationBundle\Entity\Repository\PinbarTabRepository:
+        getNavigationItemClassName: true
+
+    Oro\Bundle\SecurityBundle\Acl\Dbal\MutableAclProvider:
+        getUpdateSecurityIdentitySql: true
+        getDeleteSecurityIdentityIdSql: true
+        getDeleteClassIdSql: true
+
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:
         createNoCustomerCondition: true
@@ -805,6 +851,33 @@ check_methods_safety:
         pluralize: true
         camelize: true
 
+    Oro\Bundle\DashboardBundle\Helper\DateHelper:
+        getEnforcedTimezoneFunction: true
+
+    Oro\Bundle\ApiBundle\Collection\QueryExpressionVisitor:
+        buildPlaceholder: true
+
+    Oro\Bundle\SearchBundle\Engine\Orm\PdoPgsql:
+        getJoinAlias: true
+        getJoinField: true
+
+    Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
+        getJoinAlias: true
+        getJoinField: true
+
+    Oro\Bundle\SearchBundle\Engine\Orm\PdoMysql:
+        getJoinAlias: true
+        getJoinField: true
+
+    Oro\Bundle\WorkflowBundle\Datagrid\WorkflowStepColumnListener:
+        getWorkflowItemJoinCondition: [1]
+
+    Oro\Bundle\WorkflowBundle\Provider\WorkflowVirtualRelationProvider:
+        getWorkflowItemJoinCondition: [1]
+
+    Oro\Bundle\WorkflowBundle\Helper\WorkflowAwareEntityFetcher:
+        getWorkflowItemJoinCondition: [1]
+
 check_methods:
     Doctrine\ORM\QueryBuilder:
         __all__: true
@@ -814,9 +887,9 @@ check_methods:
         having: [0]
         orHaving: [0]
         andHaving: [0]
-        join: [0, 3]
-        leftJoin: [0, 3]
-        innerJoin: [0, 3]
+        join: [0, 1, 3]
+        leftJoin: [0, 1, 3]
+        innerJoin: [0, 1, 3]
 
     Oro\Component\DoctrineUtils\ORM\SqlQueryBuilder:
         __all__: true
@@ -826,9 +899,9 @@ check_methods:
         having: [0]
         orHaving: [0]
         andHaving: [0]
-        join: [0, 3]
-        leftJoin: [0, 3]
-        innerJoin: [0, 3]
+        join: [0, 1, 3]
+        leftJoin: [0, 1, 3]
+        innerJoin: [0, 1, 3]
 
     Oro\Bundle\EntityBundle\ORM\SqlQueryBuilder:
         __all__: true
@@ -838,9 +911,9 @@ check_methods:
         having: [0]
         orHaving: [0]
         andHaving: [0]
-        join: [0, 3]
-        leftJoin: [0, 3]
-        innerJoin: [0, 3]
+        join: [0, 1, 3]
+        leftJoin: [0, 1, 3]
+        innerJoin: [0, 1, 3]
 
     Doctrine\DBAL\Query\QueryBuilder:
         __all__: true
@@ -850,9 +923,9 @@ check_methods:
         having: [0]
         orHaving: [0]
         andHaving: [0]
-        join: [0, 3]
-        leftJoin: [0, 3]
-        innerJoin: [0, 3]
+        join: [0, 1, 3]
+        leftJoin: [0, 1, 3]
+        innerJoin: [0, 1, 3]
 
     Doctrine\ORM\Query\Expr:
         __all__: true

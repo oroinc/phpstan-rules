@@ -35,9 +35,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     const CHECK_METHODS_SAFETY = 'check_methods_safety';
 
     const CLEAR_METHODS = 'clear_methods';
+    const CLEAR_STATIC_METHODS = 'clear_static_methods';
+
     const CHECK_METHODS = 'check_methods';
     const ALL_METHODS = '__all__';
-    const CLEAR_STATIC_METHODS = 'clear_static_methods';
 
     /**
      * @var \PHPStan\Rules\RuleLevelHelper

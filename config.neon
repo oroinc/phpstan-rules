@@ -13,6 +13,8 @@ parameters:
         - */Oro/Bundle/BatchBundle/ORM/QueryBuilder/CountQueryBuilderOptimizer.php
         - */Oro/Bundle/InstallerBundle/CacheWarmer/NamespaceMigration.php
         - */Oro/Bundle/MigrationBundle/Entity/Repository/DataFixtureRepository.php
+        - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmExpressionBuilder.php
+        - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmFilterDatasourceAdapter.php
     customRulesetUsed: true
     checkThisOnly: false
 

@@ -840,6 +840,10 @@ safe_methods:
         getDeleteSecurityIdentityIdSql: true
         getDeleteClassIdSql: true
 
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmExpressionBuilder:
+         setCaseInsensitive: true
+         literal: true
+
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:
         createNoCustomerCondition: true
@@ -879,6 +883,13 @@ check_methods_safety:
         getWorkflowItemJoinCondition: [1]
 
 check_methods:
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmExpressionBuilder:
+         __all__: true
+
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmFilterDatasourceAdapter:
+        groupBy: true
+        addGroupBy: true
+
     Doctrine\ORM\QueryBuilder:
         __all__: true
         where: [0]

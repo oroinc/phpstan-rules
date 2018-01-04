@@ -270,6 +270,22 @@ variables:
         createQueryBuilder:
             alias: true
 
+    Oro\Bundle\AddressBundle\Entity\Repository\AddressTypeRepository:
+        getBatchIterator:
+            fieldName: true
+
+    Oro\Bundle\LocaleBundle\Entity\Repository\LocalizationRepository:
+        getBatchIterator:
+            fieldName: true
+
+    Oro\Bundle\CustomerBundle\Entity\Repository\CustomerRepository:
+        getBatchIterator:
+            fieldName: true
+
+    Oro\Bundle\WebsiteBundle\Entity\Repository\WebsiteRepository:
+        getBatchIterator:
+            fieldName: true
+
 properties:
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:

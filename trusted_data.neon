@@ -1,19 +1,7 @@
 variables:
-    Oro\Bundle\CalendarBundle\Manager\AttendeeRelationManager:
-        addRelatedEntityInfo:
-           userName: true
-
     Oro\Bundle\CalendarBundle\Provider\CalendarPropertyProvider:
         getItems:
             selectItems: true
-
-    Oro\Bridge\MarketingCRM\Entity\Repository\ChannelRepository:
-        getVisitsCountForChannelTypeQB:
-            entityName: true
-
-    Oro\Bundle\MagentoBundle\Service\AutomaticDiscovery:
-        discoverSimilar:
-            organizationField: true
 
     Oro\Bundle\CustomerBundle\EventListener\Datagrid\CustomerUserRoleDatagridListener:
         onBuildAfter:
@@ -23,60 +11,21 @@ variables:
         hasAssignments:
             association: true
 
-    Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
-        searchEntities:
-            idFieldName: true
-
     Oro\Bundle\MarketingListBundle\Provider\MarketingListProvider:
         getMarketingListEntitiesQueryBuilder:
             entityAlias: true
 
-    Oro\Bundle\MarketingActivityBundle\Entity\Repository\MarketingActivityRepository:
-        applyPageFilter:
-            orderDirection: true
-
-    Oro\Bundle\CampaignBundle\Entity\Repository\CampaignRepository:
-        getCampaignsLeadsQB:
-            leadAlias: true
-        getCampaignsOpportunitiesQB:
-            opportunitiesAlias: true
-        getCampaignsByCloseRevenueQB:
-            opportunitiesAlias: true
-
-    Oro\Bundle\TaskBundle\EventListener\Datagrid\UserTaskGridListener:
-        onBuildAfter:
-            userId: true
-
-    Oro\Bundle\DotmailerBundle\Entity\Repository\AddressBookContactRepository:
-        bulkUpdateFlagByEntity:
-            flagColumn: true
-
-    Oro\Bundle\DotmailerBundle\QueryDesigner\ParentEntityFindQueryConverter:
-        addSelectStatement:
-            tableAlias: true
-            idField: true
-
     Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
         deleteMailChimpMembersExtendedVars:
             staticSegmentId: true
-
-    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
-        getIteratorQueryBuilder:
-            ownerId: true
-            channelId: true
 
     Oro\Bundle\MailChimpBundle\ImportExport\Strategy\MemberActivityImportStrategy:
         findOneBy:
             entityName: true
             partialFields: true
 
-    Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
-        createQueryBuilder:
-            identifierFieldName: true
-
     Oro\Bundle\MagentoBundle\EventListener\ChannelOwnerSetListener:
         updateMagentoEntity:
-            newOwnerId: true
             entityName: true
 
     Oro\Bundle\MagentoBundle\Manager\MagentoDeleteProvider:
@@ -84,8 +33,6 @@ variables:
             entityClassName: true
 
     Oro\Bundle\ChannelBundle\Entity\Repository\LifetimeHistoryRepository:
-        calculateAccountLifetime:
-            customerAlias: true
         massStatusUpdate:
             k: true
 
@@ -101,7 +48,6 @@ variables:
         hasOtherRelations:
             alias: true
             class: true
-            expr: true
 
     Oro\Bundle\PricingBundle\Expression\PriceListQueryConverterExtension:
         joinPriceListPrices:
@@ -158,45 +104,6 @@ variables:
         duplicateVisibility:
             className: true
 
-    # visibility passed as integer but without additional checkes or typehints
-    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeGroupSubtreeCacheBuilder:
-        updateGroupCategoryVisibility:
-            visibility: true
-        updateProductVisibilityByCategory:
-            visibility: true
-
-    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeCustomerSubtreeCacheBuilder:
-        updateCustomerProductVisibilityByCategory:
-            visibility: true
-
-    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\VisibilityChangeCategorySubtreeCacheBuilder:
-        updateProductVisibilityByCategory:
-            visibility: true
-        updateCategoryVisibilityByCategory:
-            visibility: true
-
-    Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\AbstractRelatedEntitiesAwareSubtreeCacheBuilder:
-        updateCustomerGroupsProductVisibility:
-            visibility: true
-        updateCustomersProductVisibility:
-            visibility: true
-        updateCustomersCategoryVisibility:
-            visibility: true
-        updateCustomerGroupsCategoryVisibility:
-            visibility: true
-
-    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
-        updateCategoryVisibilityByCategory:
-            visibility: true
-
-    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\ProductRepository:
-        getVisibilitiesByCategoryQb:
-            visibility: true
-
-    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupCategoryRepository:
-        insertParentCategoryValues:
-            visibility: true
-
     Oro\Bundle\VisibilityBundle\Visibility\Cache\Product\Category\Subtree\AbstractSubtreeCacheBuilder:
         getChildCategoriesIdsWithFallbackToParent:
             node: true
@@ -227,38 +134,17 @@ variables:
         updateSelectQueryPart:
             alias: true
 
-    Oro\Bundle\ActivityBundle\Autocomplete\ContextSearchHandler:
-        getAssociatedTargetEntitiesQueryBuilder:
-            entityClass: true
-
-    Oro\Bundle\WorkflowBundle\Entity\Repository\ProcessDefinitionRepository:
-        findLikeName:
-            escapeChar: true
-
-    Oro\Bundle\TagBundle\Security\SecurityProvider:
-        applyAcl:
-            tableAlias: true
-
     Oro\Bundle\SegmentBundle\Entity\Manager\StaticSegmentManager:
         getSelectSql:
             identifier: true
 
     Oro\Bundle\SegmentBundle\Entity\Manager\SegmentManager:
         getFilterSubQuery:
-            tableIdentifier: true
-
-    Oro\Bundle\SegmentBundle\Entity\Repository\SegmentSnapshotRepository:
-        getIdentifiersSelectQueryBuilder:
-            tableName: true
-            paramName: true
+            tableAlias: true
 
     Oro\Bundle\SearchBundle\Engine\AbstractIndexer:
         reindexSingleEntity:
             orderingsExpr: true
-
-    Oro\Bundle\QueryDesignerBundle\QueryDesigner\SubQueryLimitHelper:
-        setLimit:
-            uniqueIdentifier: true
 
     Oro\Bundle\NotificationBundle\Provider\EmailNotificationGridHelper:
         getEntityChoices:
@@ -296,29 +182,17 @@ variables:
         addPageLimits:
             field: true
 
-    Oro\Bundle\EmailBundle\Provider\EmailRecipientsHelper:
-        getRecipients:
-            alias: true
-
     Oro\Bundle\EmailBundle\Entity\Repository\EmailUserRepository:
         findUnseenUserEmail:
             uoCheck: true
         applyFolderFilter:
             expr: true
 
-    Oro\Bundle\EmailBundle\Entity\Repository\MailboxRepository:
-        findBySettingsClassAndEmail:
-            settingsClass: true
-
     Oro\Bundle\EmailBundle\Entity\Provider\EmailThreadProvider:
         getThreadEmails:
             criteria: true
 
     Oro\Bundle\EmailBundle\Datagrid\EmailQueryFactory:
-        addFromEmailAddress:
-            emailAddressTableAlias: true
-        applyAcl:
-            uoCheck: true
         getOwningExpression:
             tableAlias: true
 
@@ -844,6 +718,15 @@ safe_methods:
          setCaseInsensitive: true
          literal: true
 
+    Oro\Bundle\EntityBundle\Provider\EntityNameResolver:
+        getNameDQL: true
+
+    Oro\Bundle\LocaleBundle\DQL\DQLNameFormatter:
+        getFormattedNameDQL: true
+
+    Oro\Bundle\DotmailerBundle\QueryDesigner\ParentEntityFindQueryConverter:
+        getTableAliasForColumn: true
+
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:
         createNoCustomerCondition: true
@@ -881,6 +764,9 @@ check_methods_safety:
 
     Oro\Bundle\WorkflowBundle\Helper\WorkflowAwareEntityFetcher:
         getWorkflowItemJoinCondition: [1]
+
+    Oro\Bundle\EntityBundle\Provider\EntityNameResolver:
+        prepareNameDQL: [0]
 
 check_methods:
     Oro\Bundle\FilterBundle\Datasource\Orm\OrmExpressionBuilder:

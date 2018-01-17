@@ -794,48 +794,48 @@ check_methods:
 
     Doctrine\ORM\QueryBuilder:
         __all__: true
-        where: [0]
-        orWhere: [0]
-        andWhere: [0]
-        having: [0]
-        orHaving: [0]
-        andHaving: [0]
+        where: [0, 1]
+        orWhere: [0, 1]
+        andWhere: [0, 1]
+        having: [0, 1]
+        orHaving: [0, 1]
+        andHaving: [0, 1]
         join: [0, 1, 3]
         leftJoin: [0, 1, 3]
         innerJoin: [0, 1, 3]
 
     Oro\Component\DoctrineUtils\ORM\SqlQueryBuilder:
         __all__: true
-        where: [0]
-        orWhere: [0]
-        andWhere: [0]
-        having: [0]
-        orHaving: [0]
-        andHaving: [0]
+        where: [0, 1]
+        orWhere: [0, 1]
+        andWhere: [0, 1]
+        having: [0, 1]
+        orHaving: [0, 1]
+        andHaving: [0, 1]
         join: [0, 1, 3]
         leftJoin: [0, 1, 3]
         innerJoin: [0, 1, 3]
 
     Oro\Bundle\EntityBundle\ORM\SqlQueryBuilder:
         __all__: true
-        where: [0]
-        orWhere: [0]
-        andWhere: [0]
-        having: [0]
-        orHaving: [0]
-        andHaving: [0]
+        where: [0, 1]
+        orWhere: [0, 1]
+        andWhere: [0, 1]
+        having: [0, 1]
+        orHaving: [0, 1]
+        andHaving: [0, 1]
         join: [0, 1, 3]
         leftJoin: [0, 1, 3]
         innerJoin: [0, 1, 3]
 
     Doctrine\DBAL\Query\QueryBuilder:
         __all__: true
-        where: [0]
-        orWhere: [0]
-        andWhere: [0]
-        having: [0]
-        orHaving: [0]
-        andHaving: [0]
+        where: [0, 1]
+        orWhere: [0, 1]
+        andWhere: [0, 1]
+        having: [0, 1]
+        orHaving: [0, 1]
+        andHaving: [0, 1]
         join: [0, 1, 3]
         leftJoin: [0, 1, 3]
         innerJoin: [0, 1, 3]
@@ -844,6 +844,16 @@ check_methods:
         __all__: true
         in: [0]
         notIn: [0]
+        eq: [0, 1]
+        neq: [0, 1]
+        gt: [0, 1]
+        lt: [0, 1]
+        gte: [0, 1]
+        lte: [0, 1]
+        like: [0, 1]
+        notLike: [0, 1]
+        between: [1, 2]
+        isMemberOf: [1]
 
     Doctrine\DBAL\Query\Expression\ExpressionBuilder:
         __all__: true

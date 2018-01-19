@@ -56,6 +56,8 @@ variables:
     Oro\Bundle\PricingBundle\Sharding\ShardManager:
         getShardsAttributes:
             targetFieldName: true
+        create:
+            query: true
 
     Oro\Bundle\PricingBundle\Compiler\ProductAssignmentRuleCompiler:
         restrictByManualPrices:
@@ -286,7 +288,58 @@ variables:
         getBatchIterator:
             fieldName: true
 
+    Oro\Bundle\VisibilityBundle\Model\CategoryVisibilityQueryBuilderModifier:
+        restrictForAnonymous:
+            anonymousGroupVisibilityTerm: true
+
+    Oro\Bundle\VisibilityBundle\Model\ProductVisibilityQueryBuilderModifier:
+        modify:
+            visibilityExpression: true
+        restrictForAnonymous:
+            anonymousGroupVisibilityTerm: true
+
+    Oro\Bundle\VisibilityBundle\Visibility\Provider\ProductVisibilityProvider:
+        getNewUserAndAnonymousVisibilitiesForProducts:
+            productVisibilityTerm: true
+            anonymousGroupVisibilityTerm: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerCategoryRepository:
+        getCategoryIdsByVisibility:
+            terms: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
+        getCategoryIdsByVisibility:
+            terms: true
+
+    Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CustomerGroupCategoryRepository:
+        getCategoryIdsByVisibility:
+            terms: true
+
+    Oro\Bundle\PricingBundle\Expression\QueryExpressionConverter\AssignedProductsConverter:
+        convert:
+            limitationDql: true
+
+    Oro\Bundle\CustomerBundle\Owner\FrontendOwnerTreeProvider:
+        executeQuery:
+            executableQuery: true
+
+    Oro\Bundle\MailChimpBundle\Model\FieldHelper:
+        getVirtualFieldExpression:
+            join: true
+
+    # Next variables are checked in parent methods, but may be unsecure when used from third parties
+    Oro\Bundle\ContactBundle\Entity\Repository\ContactRepository:
+        getPrimaryEmailsQb:
+            fullNameQueryPart: true
+        getSecondaryEmailsQb:
+            fullNameQueryPart: true
+
 properties:
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
+        addNameFields:
+            firstNameField: true
+            lastNameField: true
+
     Oro\Bundle\CustomerBundle\Autocomplete\CustomerUserSearchHandler:
         searchEntities:
             idFieldName: true
@@ -467,6 +520,7 @@ safe_methods:
         getAlias: true
         getConditionType: true
         getIndexBy: true
+        getCondition: true
 
     Doctrine\ORM\QueryBuilder:
         setParameter: true
@@ -480,6 +534,11 @@ safe_methods:
         getMaxResults: true
         getFirstResult: true
         getParameter: true
+        getDQL: true
+
+    Doctrine\ORM\Query:
+        getDQL: true
+        getSQL: true
 
     Doctrine\DBAL\Query\QueryBuilder:
         setParameter: true
@@ -564,6 +623,11 @@ safe_methods:
 
     Oro\Bundle\VisibilityBundle\EventListener\RestrictProductsIndexEventListener:
         getRootAlias: true
+        getCustomerProductVisibilitySubQuery: true
+        getCustomerGroupProductVisibilitySubQuery: true
+        getProductVisibilityResolvedTermByWebsite: true
+        getCustomerProductVisibilityResolvedVisibilityTerm: true
+        getCustomerGroupProductVisibilityResolvedQueryPart: true
 
     Oro\Bundle\VisibilityBundle\Model\CategoryVisibilityQueryBuilderModifier:
         getRootAlias: true
@@ -571,8 +635,10 @@ safe_methods:
     Oro\Bundle\VisibilityBundle\Model\ProductVisibilityQueryBuilderModifier:
         getRootAlias: true
 
+
     Oro\Bundle\VisibilityBundle\Visibility\Provider\ProductVisibilityProvider:
         getRootAlias: true
+        getVisibilityConditionForVisibilityTerms: true
 
     Oro\Bundle\VisibilityBundle\Entity\VisibilityResolved\Repository\CategoryRepository:
         getRootAlias: true
@@ -685,6 +751,7 @@ safe_methods:
 
     Oro\Bundle\MailChimpBundle\Model\FieldHelper:
         getFieldExpr: true
+        getRootTableAlias: true
 
     Oro\Bundle\SecurityBundle\Owner\Metadata\OwnershipMetadata:
         getOwnerColumnName: true
@@ -743,6 +810,9 @@ safe_methods:
     Oro\Bundle\DotmailerBundle\QueryDesigner\ParentEntityFindQueryConverter:
         getTableAliasForColumn: true
 
+    Oro\Bundle\OrganizationProBundle\Grid\OrganizationColumnExtension:
+        getEntity: true
+
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:
         createNoCustomerCondition: true
@@ -783,6 +853,9 @@ check_methods_safety:
 
     Oro\Bundle\EntityBundle\Provider\EntityNameResolver:
         prepareNameDQL: [0]
+
+    Oro\Bundle\CurrencyBundle\Query\CurrencyQueryBuilderTransformerInterface:
+        getTransformSelectQuery: [0, 2, 3]
 
 check_methods:
     Oro\Bundle\FilterBundle\Datasource\Orm\OrmExpressionBuilder:

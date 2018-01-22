@@ -15,6 +15,7 @@ parameters:
         - */Oro/Bundle/MigrationBundle/Entity/Repository/DataFixtureRepository.php
         - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmExpressionBuilder.php
         - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmFilterDatasourceAdapter.php
+        - */Oro/Bundle/WebsiteBundle/install.php
     customRulesetUsed: true
     checkThisOnly: false
 

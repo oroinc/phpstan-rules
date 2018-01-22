@@ -109,14 +109,6 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             return $this->processMethodCalls($node, $scope);
         } elseif ($node instanceof Node\Expr\StaticCall) {
             $this->processStaticMethodCall($node, $scope);
-        } elseif ((
-            $node instanceof Node\Expr\PreInc
-                || $node instanceof Node\Expr\PostInc
-                || $node instanceof Node\Expr\PostDec
-                || $node instanceof Node\Expr\PreDec
-            ) && $node->var instanceof Node\Expr\Variable
-        ) {
-            $this->trustVariable($node->var, $scope);
         }
 
         return [];
@@ -240,7 +232,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 $value,
                 $argsCount,
                 $lowerMethodName,
-                $checkArg
+                $checkArg,
+                $scope
             ) {
                 if (isset($config[$className])) {
                     // If method is listed in check methods and only certain arguments should be checked - check them
@@ -263,7 +256,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                     }
 
                     // If there are errors consider method as unsafe
-                    return !empty($errors);
+                    if (!empty($errors)) {
+                        // Trusted variable that was modified by unsafe method should become untrusted
+                        $unsafeVar = $this->getRootVariable($value);
+                        if ($unsafeVar) {
+                            $this->untrustVariable($unsafeVar, $scope);
+                        }
+
+                        return true;
+                    }
+
+                    return false;
                 }
 
                 return null;
@@ -331,7 +334,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function isUnsafeProperty(Node\Expr $value, Scope $scope): bool
     {
-        if ($value instanceof Node\Expr\PropertyFetch) {
+        if ($value instanceof Node\Expr\PropertyFetch && is_string($value->name)) {
             $type = $scope->getType($value->var);
             if (!$type instanceof ObjectType && !$type instanceof ThisType) {
                 return true;
@@ -513,14 +516,25 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $this->currentFile = $scope->getFile();
         }
 
+        $isUnsafe = $this->isUnsafe($node->expr, $scope);
         /** @var Node\Expr\Variable $var */
         if (($var = $node->var) instanceof Node\Expr\Variable) {
-            if ($node->expr instanceof Node\Expr\UnaryPlus
-                || $node->expr instanceof Node\Expr\UnaryMinus
-                || !$this->isUnsafe($node->expr, $scope)
-            ) {
+            if ($isUnsafe) {
+                // Do not trust unsafe variables
+                $this->untrustVariable($var, $scope);
+            } else {
                 // Trust safe variables
                 $this->trustVariable($var, $scope);
+            }
+        } elseif ($node->var instanceof Node\Expr\List_) {
+            foreach ($node->var->items as $item) {
+                if ($item instanceof Node\Expr\ArrayItem && $item->value instanceof Node\Expr\Variable) {
+                    if ($isUnsafe) {
+                        $this->untrustVariable($item->value, $scope);
+                    } else {
+                        $this->trustVariable($item->value, $scope);
+                    }
+                }
             }
         }
     }
@@ -626,5 +640,31 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $functionName = \strtolower($scope->getFunctionName());
         $varName = \strtolower($var->name);
         $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
+    }
+
+    /**
+     * @param Node\Expr\Variable $var
+     * @param Scope $scope
+     */
+    private function untrustVariable(Node\Expr\Variable $var, Scope $scope)
+    {
+        $functionName = \strtolower($scope->getFunctionName());
+        $varName = \strtolower($var->name);
+        unset($this->localTrustedVars[$scope->getFile()][$functionName][$varName]);
+    }
+
+    /**
+     * @param Node $node
+     * @return null|Node\Expr\Variable
+     */
+    private function getRootVariable(Node $node)
+    {
+        if ($node instanceof Node\Expr\Variable) {
+            return $node;
+        } elseif ($node instanceof Node\Expr\MethodCall) {
+            return $this->getRootVariable($node->var);
+        }
+
+        return null;
     }
 }

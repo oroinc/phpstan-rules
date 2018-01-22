@@ -1,4 +1,11 @@
 variables:
+    Oro\Bundle\EmailBundle\EventListener\Datagrid\EmailGridListener:
+        prepareQueryToFilter:
+            rFilter: true
+        removeJoinByRootAndAliases:
+            root: true
+            rJoins: true
+
     Oro\Bundle\CalendarBundle\Provider\CalendarPropertyProvider:
         getItems:
             selectItems: true
@@ -76,6 +83,10 @@ variables:
         save:
             column: true
             placeholder: true
+        deleteGeneratedPrices:
+            sql: true
+        deleteInvalidPrices:
+            sql: true
 
     Oro\Bundle\ProductBundle\Model\ProductVisibilityQueryBuilderModifier:
         addWhereInExpr:
@@ -210,6 +221,13 @@ variables:
     Oro\Bundle\ChannelBundle\Entity\Repository\LifetimeValueAverageAggregationRepository:
         getAggregatedValue:
             calculationPeriodEnd: true
+            sql: true
+
+    Oro\Bundle\PricingBundle\Entity\Repository\BaseProductPriceRepository:
+        deleteByProductUnit:
+            sql: true
+        deleteByPriceList:
+            sql: true
 
     Oro\Bundle\InventoryBundle\CacheWarmer\EntityConfigRelationsMigration:
         migrate:
@@ -333,6 +351,18 @@ variables:
             fullNameQueryPart: true
         getSecondaryEmailsQb:
             fullNameQueryPart: true
+
+    Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
+        addMergeVars:
+            mergeVarsExpr: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\MailboxRepository:
+        findBySettingsClassAndEmail:
+            settingsClass: true
+
+    Oro\Bundle\EmailBundle\Entity\Repository\EmailRepository:
+        getOwnerIdsWithEmailsQb:
+            ownerClassName: true
 
 properties:
     Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
@@ -581,6 +611,13 @@ safe_methods:
     Doctrine\Common\Collections\ArrayCollection:
         count: true
 
+    Oro\Bundle\FilterBundle\Filter\DateGroupingFilter:
+        getSelectAlias: true
+
+    Oro\Bundle\DataGridBundle\Extension\MassAction\IterableResultFactory:
+        getIdentifierField: true
+        getObjectIdentifier: true
+
     Oro\Bundle\DataGridBundle\Datasource\Orm\OrmQueryConfiguration:
         getRootAlias: true
 
@@ -721,6 +758,7 @@ safe_methods:
 
     Oro\Bundle\PricingBundle\Sharding\ShardManager:
         getEnabledShardName: true
+        getEntityBaseTable: true
 
     Doctrine\Common\Collections\Criteria:
         getMaxResults: true
@@ -927,6 +965,26 @@ check_methods:
         notLike: [0, 1]
         between: [1, 2]
         isMemberOf: [1]
+
+    Doctrine\ORM\Query\Expr\Andx:
+        add: true
+        addMultiple: true
+
+    Doctrine\ORM\Query\Expr\Orx:
+        add: true
+        addMultiple: true
+
+    Doctrine\ORM\Query\Expr\Select:
+        add: true
+        addMultiple: true
+
+    Doctrine\ORM\Query\Expr\GroupBy:
+        add: true
+        addMultiple: true
+
+    Doctrine\ORM\Query\Expr\Coalesce:
+        add: true
+        addMultiple: true
 
     Doctrine\DBAL\Query\Expression\ExpressionBuilder:
         __all__: true

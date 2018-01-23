@@ -8,6 +8,9 @@ parameters:
         - */Migration/*
         - */views/*
         - */Oro/Component/DoctrineUtils/ORM/SqlQueryBuilder.php
+        - */Oro/Component/DoctrineUtils/ORM/UnionQueryBuilder.php
+        - */Oro/Component/EntitySerializer/QueryFactory.php
+        - */Oro/Bundle/DataGridBundle/Datasource/Orm/QueryConverter/YamlConverter.php
         - */Oro/Bundle/TrackingBundle/Resources/public/lib/tracking.php
         - */Oro/Bundle/BatchBundle/ORM/Query/QueryCountCalculator.php
         - */Oro/Bundle/BatchBundle/ORM/QueryBuilder/CountQueryBuilderOptimizer.php

@@ -144,6 +144,7 @@ variables:
     Oro\Component\EntitySerializer\EntitySerializer:
         updateQuery:
             propertyPath: true
+            alias: true
         updateSelectQueryPart:
             alias: true
 
@@ -285,6 +286,9 @@ variables:
     Oro\Bundle\OrganizationBundle\Entity\Repository\OrganizationRepository:
         getOrganizationsPartialData:
             fields: true
+        updateWithOrganization:
+            # Used only in ORM migration scripts
+            tableName: true
 
     Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
         createQueryBuilder:
@@ -345,6 +349,32 @@ variables:
         getVirtualFieldExpression:
             join: true
 
+    Oro\Bundle\ScopeBundle\Model\ScopeCriteria:
+        reapplyJoins:
+            condition: true
+        applyJoinWithModifiedCondition:
+            condition: true
+
+    Oro\Component\DoctrineUtils\ORM\QueryBuilderUtil:
+        applyJoins:
+            condition: true
+
+    Oro\Bundle\SecurityBundle\Owner\OwnerTreeProvider:
+        executeQuery:
+            query: true
+
+    Oro\Bundle\SecurityBundle\Owner\OwnershipQueryHelper:
+        addOwnershipField:
+            fieldExpr: true
+
+    Oro\Bundle\TranslationBundle\Translation\DatabasePersister:
+        executeBatchTranslationInsert:
+            sqlData: true
+
+    Oro\Bundle\WorkflowBundle\Entity\Repository\ProcessDefinitionRepository:
+        findLikeName:
+            escapeChar: true
+
     # Next variables are checked in parent methods, but may be unsecure when used from third parties
     Oro\Bundle\ContactBundle\Entity\Repository\ContactRepository:
         getPrimaryEmailsQb:
@@ -363,6 +393,24 @@ variables:
     Oro\Bundle\EmailBundle\Entity\Repository\EmailRepository:
         getOwnerIdsWithEmailsQb:
             ownerClassName: true
+
+    Oro\Component\MessageQueue\Job\JobStorage:
+        createJobQueryBuilder:
+            alias: true
+
+    Oro\Bundle\OrganizationBundle\Entity\Repository\BusinessUnitRepository:
+        getGridFilterChoices:
+            entity: true
+
+    # @find_entities action must be checked at all places where it is used. $where may contain any valid expression
+    Oro\Component\Action\Action\FindEntities:
+        addWhere:
+            where: true
+
+    # Called with safe SQL during migration loading
+    Oro\Bundle\MigrationBundle\Event\MigrationEvent:
+        getData:
+            sql: true
 
 properties:
     Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
@@ -545,6 +593,20 @@ safe_static_methods:
         generateParameterName: true
 
 safe_methods:
+    Oro\Component\MessageQueue\Transport\Dbal\DbalConnection:
+        getTableName: true
+
+    Oro\Component\DoctrineUtils\ORM\SqlQueryBuilder:
+        setMaxResults: true
+        setFirstResult: true
+
+    Oro\Component\DoctrineUtils\ORM\UnionQueryBuilder:
+        getSQL: true
+        setParameter: true
+        setParameters: true
+        setMaxResults: true
+        setFirstResult: true
+
     Doctrine\ORM\Query\Expr\Join:
         getJoin: true
         getAlias: true
@@ -557,6 +619,7 @@ safe_methods:
         setParameters: true
         setMaxResults: true
         setFirstResult: true
+        addCriteria: true
         getAllAliases: true
         getRootAliases: true
         getRootAlias: true
@@ -565,6 +628,7 @@ safe_methods:
         getFirstResult: true
         getParameter: true
         getDQL: true
+        getQuery: true
 
     Doctrine\ORM\Query:
         getDQL: true
@@ -582,6 +646,7 @@ safe_methods:
         getMaxResults: true
         getFirstResult: true
         getParameter: true
+        getQuery: true
 
     Doctrine\ORM\Mapping\ClassMetadata:
         getSingleIdentifierFieldName: true
@@ -610,6 +675,12 @@ safe_methods:
 
     Doctrine\Common\Collections\ArrayCollection:
         count: true
+
+    Oro\Bundle\ScopeBundle\Model\ScopeCriteria:
+        resolveBasicCondition: [1, 2]
+
+    Oro\Bundle\EntityBundle\ORM\NativeQueryExecutorHelper:
+        getTableName: true
 
     Oro\Bundle\FilterBundle\Filter\DateGroupingFilter:
         getSelectAlias: true
@@ -851,6 +922,12 @@ safe_methods:
     Oro\Bundle\OrganizationProBundle\Grid\OrganizationColumnExtension:
         getEntity: true
 
+check_static_methods_safety:
+    Oro\Component\DoctrineUtils\ORM\QueryUtil:
+        cloneQuery: true
+        getExecutableSql: true
+        parseQuery: true
+
 check_methods_safety:
     Oro\Bundle\ChannelBundle\EventListener\AccountLifetimeSubscriber:
         createNoCustomerCondition: true
@@ -896,6 +973,11 @@ check_methods_safety:
         getTransformSelectQuery: [0, 2, 3]
 
 check_methods:
+    Oro\Component\DoctrineUtils\ORM\UnionQueryBuilder:
+        addOrderBy: true
+        setAlias: true
+        addSelect: [0, 1]
+
     Oro\Bundle\FilterBundle\Datasource\Orm\OrmExpressionBuilder:
          __all__: true
 
@@ -1023,3 +1105,6 @@ clear_methods:
         getSingleAssociationJoinColumnName: true
         getSingleAssociationReferencedJoinColumnName: true
         getFieldForColumn: true
+
+    Doctrine\Common\Persistence\ManagerRegistry:
+        getManagerForClass: true

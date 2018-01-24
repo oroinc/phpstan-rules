@@ -827,6 +827,7 @@ safe_methods:
 
     Oro\Bundle\EmailBundle\Datagrid\EmailQueryFactory:
         getOwningExpression: true
+        prepareSearchFilters: true
 
     Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface:
         generateParameterName: true

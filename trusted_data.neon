@@ -402,6 +402,13 @@ variables:
         getGridFilterChoices:
             entity: true
 
+    Oro\Bundle\ActivityListBundle\Helper\ActivityInheritanceTargetsHelper:
+            getSubQuery:
+                # Caller passes field received from ActivityInheritanceTargetsHelper::getInheritanceTargetsRelations be entity class
+                field: true
+                # Checked in callers where the only usage  passed entityIdExpr as placeholder parameter, may be dangerous with 3rd parties
+                entityIdExpr: true
+
     # @find_entities action must be checked at all places where it is used. $where may contain any valid expression
     Oro\Component\Action\Action\FindEntities:
         addWhere:
@@ -1107,4 +1114,10 @@ clear_methods:
         getFieldForColumn: true
 
     Doctrine\Common\Persistence\ManagerRegistry:
+        getManagerForClass: true
+
+    Doctrine\Bundle\DoctrineBundle\Registry:
+        getManagerForClass: true
+
+    Symfony\Bridge\Doctrine\RegistryInterface:
         getManagerForClass: true

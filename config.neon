@@ -7,17 +7,25 @@ parameters:
         - */Migrations/*
         - */Migration/*
         - */views/*
+        - */Oro/Component/EntitySerializer/QueryFactory.php
+        - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmFilterDatasourceAdapter.php
+        # Builders may receive any input to construct query
+        # Internal logic is not checked, but calls of methods are configured to be checked in check_methods section
         - */Oro/Component/DoctrineUtils/ORM/SqlQueryBuilder.php
         - */Oro/Component/DoctrineUtils/ORM/UnionQueryBuilder.php
-        - */Oro/Component/EntitySerializer/QueryFactory.php
+        - */Oro/Bundle/QueryDesignerBundle/Model/ExpressionBuilder.php
+        - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmExpressionBuilder.php
+        # Yaml Converter create query builder based onb YAML input, which should be checked separetly
         - */Oro/Bundle/DataGridBundle/Datasource/Orm/QueryConverter/YamlConverter.php
-        - */Oro/Bundle/TrackingBundle/Resources/public/lib/tracking.php
+        # Count related classes uses original query builder and do not work with user input
         - */Oro/Bundle/BatchBundle/ORM/Query/QueryCountCalculator.php
         - */Oro/Bundle/BatchBundle/ORM/QueryBuilder/CountQueryBuilderOptimizer.php
+        # Installer cache warmer is safe for usages
         - */Oro/Bundle/InstallerBundle/CacheWarmer/NamespaceMigration.php
+        # Migrations do not work with user inout
         - */Oro/Bundle/MigrationBundle/Entity/Repository/DataFixtureRepository.php
-        - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmExpressionBuilder.php
-        - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmFilterDatasourceAdapter.php
+        # Could not be checked by phpstan and does not contain any DB queries
+        - */Oro/Bundle/TrackingBundle/Resources/public/lib/tracking.php
         - */Oro/Bundle/WebsiteBundle/install.php
     customRulesetUsed: true
     checkThisOnly: false

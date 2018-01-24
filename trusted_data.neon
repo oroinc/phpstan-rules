@@ -375,6 +375,10 @@ variables:
         findLikeName:
             escapeChar: true
 
+    Oro\Bundle\EntityConfigBundle\EventListener\AbstractConfigGridListener:
+        prepareQuery:
+            item: true
+
     # Next variables are checked in parent methods, but may be unsecure when used from third parties
     Oro\Bundle\ContactBundle\Entity\Repository\ContactRepository:
         getPrimaryEmailsQb:

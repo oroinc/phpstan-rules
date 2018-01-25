@@ -379,6 +379,16 @@ variables:
         prepareQuery:
             item: true
 
+    # index variable is passed from Base driver public methods where it is already checked
+    Oro\Bundle\SearchBundle\Engine\Orm\PdoPgsql:
+        setTextOrderBy:
+            index: true
+
+    # Cache contains signed DQL parts which are safe for restoring
+    Oro\Bundle\ProductBundle\Layout\DataProvider\AbstractSegmentProductsProvider:
+        restoreQuery:
+            data: true
+
     # Rule cache contains signed DQL parts which are safe for restoring
     Oro\Bundle\PricingBundle\Cache\RuleCache:
         restoreQueryBuilder:

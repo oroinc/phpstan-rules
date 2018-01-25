@@ -590,6 +590,8 @@ properties:
     Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
         createQueryBuilder:
             entityName: true
+        getAggregatedData:
+            function: true
 
     Oro\Bundle\FormBundle\Autocomplete\SearchHandler:
         getEntitiesByIds:
@@ -963,6 +965,9 @@ safe_methods:
 
     Oro\Bundle\OrganizationProBundle\Grid\OrganizationColumnExtension:
         getEntity: true
+
+    Oro\Bundle\SearchBundle\Engine\FulltextIndexManager:
+        getQuery: true
 
     # Should receive only validated rules with whitelisted fieldset, like done in price rules
     Oro\Component\Expression\QueryExpressionBuilder:

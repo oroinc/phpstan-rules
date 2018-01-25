@@ -20,6 +20,7 @@ parameters:
         # Query converters may convert any given instance of AbstractQueryDesigner to query, and can not contain security checks
         - */Oro/Bundle/ProductBundle/Expression/QueryConverter.php
         - */Oro/Bundle/ProductBundle/VirtualFields/QueryDesigner/VirtualFieldsSelectQueryConverter.php
+        - */Oro/Bundle/SegmentBundle/Query/SegmentQueryConverter.php
         # Count related classes uses original query builder and do not work with user input
         - */Oro/Bundle/BatchBundle/ORM/Query/QueryCountCalculator.php
         - */Oro/Bundle/BatchBundle/ORM/QueryBuilder/CountQueryBuilderOptimizer.php

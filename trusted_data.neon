@@ -1,4 +1,14 @@
 variables:
+    Oro\Bundle\WorkflowBundle\Entity\Repository\WorkflowItemRepository:
+        findByStepNamesAndEntityClassQueryBuilder:
+            entityClass: true
+            # dqlFilter may contain any valid where expression passed from trigger.filter, this is done by design and will only affect set of workflow items
+            dqlFilter: true
+
+    Oro\Bundle\WorkflowBundle\Helper\WorkflowAwareEntityFetcher:
+        getEntitiesWithoutWorkflowItem:
+            dqlFilter: true
+
     Oro\Bundle\SecurityBundle\Search\AclHelper:
         apply:
             orExpression: true

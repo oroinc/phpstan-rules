@@ -27,6 +27,9 @@ parameters:
         - */Oro/Bundle/ProductBundle/Expression/QueryConverter.php
         - */Oro/Bundle/ProductBundle/VirtualFields/QueryDesigner/VirtualFieldsSelectQueryConverter.php
         - */Oro/Bundle/SegmentBundle/Query/SegmentQueryConverter.php
+        # Converters operate on given data and does not do data consistency control
+        - */Oro/Component/Expression/QueryExpressionConverter/BinaryNodeConverter.php
+        - */Oro/Component/Expression/QueryExpressionConverter/UnaryNodeConverter.php
         # Count related classes uses original query builder and do not work with user input
         - */Oro/Bundle/BatchBundle/ORM/Query/QueryCountCalculator.php
         - */Oro/Bundle/BatchBundle/ORM/QueryBuilder/CountQueryBuilderOptimizer.php

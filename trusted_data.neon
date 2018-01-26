@@ -1169,7 +1169,7 @@ check_methods:
         like: [0, 1]
         notLike: [0, 1]
         between: [1, 2]
-        isMemberOf: [1]
+        isMemberOf: [0, 1]
 
     Doctrine\ORM\Query\Expr\Andx:
         add: true

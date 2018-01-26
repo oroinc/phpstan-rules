@@ -9,6 +9,12 @@ parameters:
         - */views/*
         - */Oro/Component/EntitySerializer/QueryFactory.php
         - */Oro/Bundle/FilterBundle/Datasource/Orm/OrmFilterDatasourceAdapter.php
+        # Query usages are checked, internals depends on passed values
+        - */Oro/Bundle/WebsiteSearchBundle/Query/WebsiteSearchQuery.php
+        - */Oro/Bundle/SearchBundle/Query/Query.php
+        - */Oro/Bundle/SearchBundle/Query/AbstractSearchQuery.php
+        # Parser receives tokens provided by lexer, which controls data structure
+        - */Oro/Bundle/SearchBundle/Query/Expression/Parser.php
         # Builders may receive any input to construct query
         # Internal logic is not checked, but calls of methods are configured to be checked in check_methods section
         - */Oro/Component/DoctrineUtils/ORM/SqlQueryBuilder.php

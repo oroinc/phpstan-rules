@@ -1,4 +1,8 @@
 variables:
+    Oro\Bundle\SecurityBundle\Search\AclHelper:
+        apply:
+            orExpression: true
+
     Oro\Bundle\EmailBundle\EventListener\Datagrid\EmailGridListener:
         prepareQueryToFilter:
             rFilter: true
@@ -294,9 +298,28 @@ variables:
             # Used only in ORM migration scripts
             tableName: true
 
+    Oro\Bundle\ChannelBundle\Entity\Manager\CustomerSearchApiEntityManager:
+        getSearchResult:
+            # Expression is based on criteria which is costructed only for data channel which is filtered by normalizer in CustomerSearchController
+            expression: true
+
+    Oro\Bundle\SearchBundle\Datagrid\Filter\Adapter\SearchFilterDatasourceAdapter:
+        addRestriction:
+            # Restriction is passed to adapter from clients and should be checked there
+            restriction: true
+
     Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
         createQueryBuilder:
             alias: true
+        getAggregatedData:
+            # Function is from whitelist
+            function: true
+            # Fieldselect is a part of existing query builder
+            fieldSelect: true
+            # Field Name is checked, field type is whitelisted identifier
+            field: true
+        runMultiInserts:
+            data: true
 
     Oro\Bundle\AddressBundle\Entity\Repository\AddressTypeRepository:
         getBatchIterator:
@@ -382,6 +405,10 @@ variables:
     Oro\Bundle\EntityConfigBundle\EventListener\AbstractConfigGridListener:
         prepareQuery:
             item: true
+
+    Oro\Bundle\ProductBundle\EventListener\ProductVisibilityRestrictionList:
+        applyQueryRestrictions:
+            restrictions: true
 
     # index variable is passed from Base driver public methods where it is already checked
     Oro\Bundle\SearchBundle\Engine\Orm\PdoPgsql:
@@ -590,8 +617,6 @@ properties:
     Oro\Bundle\SearchBundle\Engine\Orm\BaseDriver:
         createQueryBuilder:
             entityName: true
-        getAggregatedData:
-            function: true
 
     Oro\Bundle\FormBundle\Autocomplete\SearchHandler:
         getEntitiesByIds:
@@ -969,6 +994,12 @@ safe_methods:
     Oro\Bundle\SearchBundle\Engine\FulltextIndexManager:
         getQuery: true
 
+    Oro\Bundle\VisibilityBundle\Model\ProductVisibilitySearchQueryModifier:
+        createProductVisibilityExpression: true
+
+    Oro\Bundle\WebsiteSearchBundle\Placeholder\PlaceholderExpressionVisitor:
+        dispatch: true
+
     # Should receive only validated rules with whitelisted fieldset, like done in price rules
     Oro\Component\Expression\QueryExpressionBuilder:
         convert: true
@@ -1027,7 +1058,44 @@ check_methods_safety:
     Oro\Bundle\CurrencyBundle\Query\CurrencyQueryBuilderTransformerInterface:
         getTransformSelectQuery: [0, 2, 3]
 
+    Doctrine\Common\Collections\ExpressionBuilder:
+        notExists: [0]
+
+    Oro\Bundle\SearchBundle\Query\Criteria\ExpressionBuilder:
+        __all__: true
+        in: [0]
+        notIn: [0]
+
 check_methods:
+    Oro\Bundle\WebsiteSearchBundle\Query\WebsiteSearchQuery:
+        setCriteria: true
+        select: true
+        addSelect: [0]
+        andWhere: [0, 2]
+        orWhere: [0, 2]
+        where: [1, 3]
+        setOrderBy: [0, 1]
+        addAggregate: [1]
+        addToSelect: [0]
+
+    Oro\Bundle\SearchBundle\Query\Query:
+        setCriteria: true
+        select: true
+        addSelect: [0]
+        andWhere: [0]
+        orWhere: [0]
+        where: [1]
+        setOrderBy: [0, 1]
+        addAggregate: [1]
+        addToSelect: [0]
+
+    Oro\Bundle\SearchBundle\Query\Criteria\Criteria:
+        __all__: true
+        where: [0, 1]
+        orWhere: [0, 1]
+        andWhere: [0, 1]
+        orderBy: true
+
     Oro\Component\DoctrineUtils\ORM\UnionQueryBuilder:
         addOrderBy: true
         setAlias: true

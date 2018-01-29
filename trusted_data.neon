@@ -301,6 +301,92 @@ variables:
             tableName: true
             activityField: true
 
+    # fieldName is checked at caller AbstractFilter
+    # parameterName is generated based on filter name and does not use user input
+    Oro\Bundle\FilterBundle\Filter\DuplicateFilter:
+        buildComparisonExpr:
+            fieldName: true
+
+    Oro\Bundle\FilterBundle\Filter\EnumFilter:
+        buildComparisonExpr:
+            fieldName: true
+            parameterName: true
+
+    Oro\Bundle\FilterBundle\Filter\BooleanFilter:
+        buildComparisonExpr:
+            fieldName: true
+
+    Oro\Bundle\FilterBundle\Filter\ChoiceFilter:
+        buildComparisonExpr:
+            fieldName: true
+        buildNullValueExpr:
+            fieldName: true
+        buildCombinedExpr:
+            comparisonExpr: true
+            nullValueExpr: true
+
+    Oro\Bundle\FilterBundle\Filter\AbstractDateFilter:
+        buildFilterBetween:
+            fieldName: true
+            startDateParameterName: true
+            endDateParameterName: true
+        buildFilterLessMore:
+            fieldName: true
+            dateParameterName: true
+        buildFilterNotBetween:
+            fieldName: true
+            startDateParameterName: true
+            endDateParameterName: true
+        buildFilterEqual:
+            fieldName: true
+            dateParameterName: true
+
+    Oro\Bundle\FilterBundle\Filter\SingleChoiceFilter:
+        buildComparisonExpr:
+            fieldName: true
+            parameterName: true
+
+    Oro\Bundle\FilterBundle\Filter\NumberFilter:
+        buildComparisonExpr:
+            fieldName: true
+            parameterName: true
+
+    Oro\Bundle\FilterBundle\Filter\NumberRangeFilter:
+        buildBetweenExpr:
+            fieldName: true
+            parameterStart: true
+            parameterEnd: true
+        buildNotBetweenExpr:
+            fieldName: true
+            parameterStart: true
+            parameterEnd: true
+
+    Oro\Bundle\FilterBundle\Filter\StringFilter:
+        buildComparisonExpr:
+            fieldName: true
+            parameterName: true
+
+    Oro\Bundle\FilterBundle\Filter\BaseMultiChoiceFilter:
+        buildComparisonExpr:
+            fieldName: true
+            parameterName: true
+
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmManyRelationBuilder:
+        createSubQueryBuilder:
+            # Root entity passed to protected createSubQueryBuilder is checked in caller methods
+            rootEntity: true
+
+    Oro\Bundle\FilterBundle\Filter\DateGroupingFilter:
+        getUsedDates:
+            # class constants are passed as method argument
+            filterType: true
+            extraWhereClauses: true
+        addSelect:
+            # parts are generated based on addFilter calls which are safe
+            parts: true
+        addWhereClause:
+            filterType: true
+
     Oro\Bundle\OrganizationBundle\Entity\Repository\OrganizationRepository:
         getOrganizationsPartialData:
             fields: true
@@ -764,6 +850,16 @@ safe_methods:
 
     Oro\Bundle\FilterBundle\Filter\DateGroupingFilter:
         getSelectAlias: true
+        getSelectClause: true
+        getDataFieldName: true
+        getCalendarEntity: true
+        getTargetEntity: true
+
+    Oro\Bundle\FilterBundle\Filter\SelectRowFilter:
+        getDataFieldName: true
+
+    Oro\Bundle\FilterBundle\Filter\SkipEmptyPeriodsFilter:
+        getDataFieldName: true
 
     Oro\Bundle\DataGridBundle\Extension\MassAction\IterableResultFactory:
         getIdentifierField: true
@@ -851,6 +947,10 @@ safe_methods:
 
     Oro\Bundle\SegmentBundle\Entity\Manager\SegmentManager:
         getIdentifierFieldName: true
+        getFilterSubQuery: true
+
+    Oro\Bundle\FilterBundle\Datasource\Orm\OrmManyRelationBuilder:
+        getFilterParts: true
 
     Oro\Bundle\SegmentBundle\Entity\Repository\SegmentSnapshotRepository:
         getEntityReferenceField: true
@@ -955,6 +1055,10 @@ safe_methods:
 
     Oro\Bundle\ActivityListBundle\Filter\ActivityListFilter:
         getEntityAlias: true
+        createRelatedActivityDql: true
+
+    Oro\Bundle\FilterBundle\Filter\ManyToManyFilter:
+        getJoinIdentifier: true
 
     Oro\Bundle\ApiBundle\Config\EntityDefinitionConfig:
         findFieldNameByPropertyPath: true
@@ -1087,6 +1191,12 @@ check_methods:
         setOrderBy: [0, 1]
         addAggregate: [1]
         addToSelect: [0]
+
+    Oro\Bundle\FilterBundle\Datasource\ExpressionBuilderInterface:
+        __all__: true
+        comparison: [0, 2]
+        in: [0]
+        notIn: [0]
 
     Oro\Bundle\SearchBundle\Query\Query:
         setCriteria: true

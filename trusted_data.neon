@@ -416,6 +416,9 @@ variables:
             field: true
         runMultiInserts:
             data: true
+        applyWhereToQB:
+            # Where condition is constructed based on given criteria, all criterias are already checked
+            whereCondition: true
 
     Oro\Bundle\AddressBundle\Entity\Repository\AddressTypeRepository:
         getBatchIterator:
@@ -859,6 +862,12 @@ safe_methods:
         getDataFieldName: true
 
     Oro\Bundle\FilterBundle\Filter\SkipEmptyPeriodsFilter:
+        getDataFieldName: true
+
+    Oro\Bundle\SegmentBundle\Filter\SegmentFilter:
+        getDataFieldName: true
+
+    Oro\Bundle\TagBundle\Filter\TagsDictionaryFilter:
         getDataFieldName: true
 
     Oro\Bundle\DataGridBundle\Extension\MassAction\IterableResultFactory:

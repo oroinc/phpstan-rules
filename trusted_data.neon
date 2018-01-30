@@ -782,6 +782,13 @@ safe_methods:
         setMaxResults: true
         setFirstResult: true
 
+    Doctrine\DBAL\Connection:
+        quote: true
+        quoteIdentifier: true
+
+    Doctrine\DBAL\Driver\Connection:
+        quote: true
+
     Doctrine\ORM\Query\Expr\Join:
         getJoin: true
         getAlias: true

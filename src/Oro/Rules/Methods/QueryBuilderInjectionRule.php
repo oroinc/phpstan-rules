@@ -146,7 +146,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
-     * If static method is whitelisted it is considered as safe.
+     * Check static method for unsafe usages.
      *
      * @param Node\Expr $value
      * @return bool
@@ -165,6 +165,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 return false;
             }
 
+            // Check method arguments for safeness, if there are unsafe items - mark method as unsafe
             if (($result = $this
                     ->checkMethodArguments(
                         $value,

@@ -420,6 +420,12 @@ variables:
             # Where condition is constructed based on given criteria, all criterias are already checked
             whereCondition: true
 
+    # Field name and parameter name are checked in caller methods
+    Oro\Bundle\PricingBundle\Filter\ProductPriceFilter:
+        addEqExpr:
+            fieldName: true
+            parameterName: true
+
     Oro\Bundle\AddressBundle\Entity\Repository\AddressTypeRepository:
         getBatchIterator:
             fieldName: true

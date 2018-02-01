@@ -108,4 +108,4 @@ protected function addWhereToQueryBuilder(QueryBuilder $qb, string $suffix, int 
 Such code will lead to a security warning, as `$fieldName` variable was constructed using several parts, some of which are not safe.
 The best solution to make this expression safe is to check `$suffix` with `QueryBuilderUtil::checkIdentifier($suffix)`
 Another option is to add `$suffix` into the `trusted_data.neon` whitelist if its values are always passed as safe or checked in the caller.
-The worst solution would be to mark because its parts may be changed and, after adding a new or an unsafe part, it will be skipped, although it may contain an unchecked vulnerability.
+The worst solution would be to mark `$fieldName` as safe because its parts may be changed and, after adding a new or an unsafe part, it will be skipped, although it may contain an unchecked vulnerability.

@@ -1,0 +1,11 @@
+/logs
+/.settings
+/.buildpath
+/.project
+/.idea
+/composer.phar
+composer.lock
+/vendor
+phpunit.xml
+*~
+/components

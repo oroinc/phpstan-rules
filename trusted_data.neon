@@ -371,6 +371,12 @@ variables:
             fieldName: true
             parameterName: true
 
+    Oro\Bundle\ImportExportBundle\EventListener\ExportJoinListener:
+        createSourceEntityQueryBuilderWithAssociations:
+            fieldName: true
+        joinAssociations:
+            fieldName: true
+
     Oro\Bundle\FilterBundle\Datasource\Orm\OrmManyRelationBuilder:
         createSubQueryBuilder:
             # Root entity passed to protected createSubQueryBuilder is checked in caller methods

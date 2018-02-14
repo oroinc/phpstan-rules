@@ -22,6 +22,7 @@ The tool is based on [PHPStan - PHP Static Analysis Tool](https://github.com/php
 and is implemented as additional Rule.
 
 To check codebase for unsafe DQL and SQL usages perform the following actions:
+ - change directory to `<application_path>/package/test-security/tool/sql-injection/` where `<application_path>` is path to application in the file system
  - install dependencies `composer install`
  - run check with `./vendor/bin/phpstan analyze -c config.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
  
@@ -63,6 +64,87 @@ If there is a need to pass a variable directly into the query, use `QueryBuilder
 ### DBAL
 Use bind parameters or quote them with the connection quote method. 
 Identifiers should be either checked for safety with QueryBuilderUtil or quoted with the quoteIdentifier method of connection.
+
+### Common warnings and possible ways to fix them
+
+ - Unsafe field is used as a part of query
+
+    ```php
+    $queryBuilder->andWhere($queryBuilder->expr()->eq($field, ':parameter'));
+    ```
+    
+    Fix - use `QueryBuilderUtil::checkField` to check field for safeness
+    ```php
+    QueryBuilderUtil::checkField($field);
+    $queryBuilder->andWhere($queryBuilder->expr()->eq($field, ':parameter'));
+    ```
+    
+ - Using composite identifier
+    ```php
+    $queryBuilder->andWhere($queryBuilder->expr()->eq($alias . '.' . $field, ':parameter'));
+    ```
+    
+    Or
+    
+    ```php
+    $queryBuilder->andWhere($queryBuilder->expr()->eq(sprintf('%s.%s', $alias, $field), ':parameter'));
+    ```
+    
+    Possible ways to fix.
+
+    Fix 1 - use `QueryBuilderUtil::getField`
+    ```php
+    $queryBuilder->andWhere($queryBuilder->expr()->eq(QueryBuilderUtil::getField($alias, $field), ':parameter'));
+    ```
+    
+    Fix 2 - check each identifier separately with `QueryBuilderUtil::checkIdentifier`
+    ```php
+    QueryBuilderUtil::checkIdentifier($alias);
+    QueryBuilderUtil::checkIdentifier($field);
+    $queryBuilder->andWhere($queryBuilder->expr()->eq($alias . '.' . $field, ':parameter'));
+    ```
+    
+    Fix 3 - use safe `QueryBuilderUtil::sprintf`, also applicable when replacing sprintf
+    ```php
+    $queryBuilder->andWhere($queryBuilder->expr()->eq(QueryBuilderUtil::sprintf('%s.%s', $alias, $field), ':parameter'));
+    ```
+    
+ - Using composite parameter name
+    ```php
+    $queryBuilder->andWhere($queryBuilder->expr()->eq('table.id', $paramer));
+    ```
+     
+    Fix - use `QueryBuilderUtil::checkParameter`
+     
+    ```php
+    QueryBuilderUtil::checkParameter($paramer);
+    $queryBuilder->andWhere($queryBuilder->expr()->eq('table.id', $paramer));
+    ```
+ - Using sort order passed from outside
+ 
+    ```php
+    $queryBuilder->orderBy('table.field', $sortOrder);
+    ```
+    
+    Fix - use `QueryBuilderUtil::getSortOrder`
+    
+    ```php
+    $queryBuilder->orderBy('table.field', QueryBuilderUtil::getSortOrder($sortOrder));
+    ```
+    
+ - Literal is passed to query
+    
+    ```php
+    $queryBuilder->select(sprintf("'%s' as className", $className));
+    ```
+    
+    Fix use `literal` expression
+    
+     ```php
+     $queryBuilder->select(
+       sprintf((string)$queryBuilder->expr()->literal($className) . ' as className')
+     );
+     ```
 
 ## Static code analysis - Configuration
 If a variable, a property or a method are considered safe after a detailed manual analysis, they may be added to `trusted_data.neon`.

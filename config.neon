@@ -1,7 +1,10 @@
 parameters:
     excludes_analyse:
+        - */platform/build/*
         - */Tests/*
         - */Testing/*
+        - */Test/*
+        - */Oro/Component/TestUtils/*
         - */TestFramework*
         - */Symfony/*
         - */Migrations/*

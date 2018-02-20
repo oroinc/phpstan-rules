@@ -166,7 +166,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
 
             // Check method arguments for safeness, if there are unsafe items - mark method as unsafe
-            if (($result = $this
+            if ((
+                $result = $this
                     ->checkMethodArguments(
                         $value,
                         $scope,
@@ -230,7 +231,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
 
             // Methods marked for checked with safe arguments are safe
-            if (($result = $this
+            if ((
+                $result = $this
                     ->checkMethodArguments(
                         $value,
                         $scope,
@@ -239,7 +241,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                     )
                 ) !== null
                 ||
-                ($result = $this
+                (
+                    $result = $this
                     ->checkMethodArguments(
                         $value,
                         $scope,

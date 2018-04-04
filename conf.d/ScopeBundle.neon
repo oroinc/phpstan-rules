@@ -1,0 +1,11 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\ScopeBundle\Model\ScopeCriteria:
+                reapplyJoins:
+                    condition: true
+                applyJoinWithModifiedCondition:
+                    condition: true
+        safe_methods:
+            Oro\Bundle\ScopeBundle\Model\ScopeCriteria:
+                resolveBasicCondition: [1, 2]

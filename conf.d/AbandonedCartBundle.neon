@@ -1,0 +1,13 @@
+parameters:
+    trustedData:
+        properties:
+            Oro\Bundle\AbandonedCartBundle\Model\AbandonedCartList\Tracking\TrackingStatProvider:
+                getStatResult:
+                    orderAssociationName: true
+                    campaignAssociationName: true
+            Oro\Bundle\AbandonedCartBundle\Datagrid\AbandonedCartCampaignListener:
+                onBuildAfter:
+                    abandonedCartCampaignClass: true
+            Oro\Bundle\AbandonedCartBundle\Datagrid\MarketingListListener:
+                onBuildAfter:
+                    abandonedCartCampaignClass: true

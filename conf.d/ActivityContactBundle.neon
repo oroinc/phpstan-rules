@@ -1,0 +1,5 @@
+parameters:
+    trustedData:
+        safe_methods:
+            Oro\Bundle\ActivityContactBundle\Command\ActivityContactRecalculateCommand:
+                getAssociationName: true

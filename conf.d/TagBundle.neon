@@ -1,0 +1,5 @@
+parameters:
+    trustedData:
+        safe_methods:
+            Oro\Bundle\TagBundle\Filter\TagsDictionaryFilter:
+                getDataFieldName: true

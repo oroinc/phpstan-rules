@@ -1,0 +1,6 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\InventoryBundle\CacheWarmer\EntityConfigRelationsMigration:
+                migrate:
+                    warehouseClass: true

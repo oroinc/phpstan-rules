@@ -1,0 +1,81 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
+                deleteMailChimpMembersExtendedVars:
+                    staticSegmentId: true
+            Oro\Bundle\MailChimpBundle\ImportExport\Strategy\MemberActivityImportStrategy:
+                findOneBy:
+                    entityName: true
+                    partialFields: true
+            Oro\Bundle\MailChimpBundle\Model\FieldHelper:
+                getVirtualFieldExpression:
+                    join: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
+                addMergeVars:
+                    mergeVarsExpr: true
+        properties:
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MemberSyncIterator:
+                addNameFields:
+                    firstNameField: true
+                    lastNameField: true
+            Oro\Bundle\MailChimpBundle\Model\StaticSegment\StaticSegmentsMemberStateManager:
+                handleDroppedMembers:
+                    staticSegmentMember: true
+                deleteMailChimpMembers:
+                    mailChimpMemberСlassName: true
+                deleteMailChimpMembersExtendedVars:
+                    extMergeVarClassName: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\AbstractStaticSegmentMembersIterator:
+                matchMembersByEmail:
+                    memberClassName: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\MarketingListEmailIterator:
+                prepareIteratorPart:
+                    unsubscribedItemClassName: true
+                    removedItemClassName: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberDroppedStateIterator:
+                createSubordinateIterator:
+                    memberExtendedMergeVarEntity: true
+                    memberEntity: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberRemoveStateIterator:
+                createSubordinateIterator:
+                    marketingListEmailEntity: true
+                    memberEntity: true
+            Oro\Bundle\MailChimpBundle\Acl\Voter\MarketingListStateItemVoter:
+                getQueryBuilder:
+                    marketingListClassName: true
+                    memberClassName: true
+                    subscriberListClassName: true
+            Oro\Bundle\MailChimpBundle\ImportExport\Processor\RemoveProcessor:
+                createQueryBuilder:
+                    entityName: true
+                    field: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberAddStateIterator:
+                createSubordinateIterator:
+                    memberEntity: true
+                    marketingListEmailEntity: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\StaticSegmentMemberToRemoveIterator:
+                createSubordinateIterator:
+                    memberToRemoveEntity: true
+            Oro\Bundle\MailChimpBundle\Provider\Transport\Iterator\AbstractStaticSegmentIterator:
+                prepareIteratorPart:
+                    unsubscribedItemClassName: true
+                    removedItemClassName: true
+            Oro\Bundle\MailChimpBundle\ImportExport\Reader\StaticSegmentReader:
+                getStaticSegmentIterator:
+                    marketingListClassName: true
+            Oro\Bundle\MailChimpBundle\ImportExport\Writer\RemoveWriter:
+                createQueryBuilder:
+                    entityName: true
+                    field: true
+            Oro\Bundle\MailChimpBundle\ImportExport\Writer\StaticSegmentExportWriter:
+                updateStaticSegmentMembersState:
+                    staticSegmentMemberClassName: true
+                updateMembersStatus:
+                    memberClassName: true
+                deleteListMembers:
+                    memberClassName: true
+        safe_methods:
+            Oro\Bundle\MailChimpBundle\Model\FieldHelper:
+                getFieldExpr: true
+                getRootTableAlias: true

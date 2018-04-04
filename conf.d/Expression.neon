@@ -1,0 +1,5 @@
+parameters:
+    trustedData:
+        safe_methods:
+            Oro\Component\Expression\QueryExpressionBuilder:
+                convert: true

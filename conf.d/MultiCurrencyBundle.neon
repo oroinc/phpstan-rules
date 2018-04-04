@@ -1,0 +1,6 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\MultiCurrencyBundle\Datagrid\ConvertedValueColumnListener:
+                onBuildAfter:
+                    query: true

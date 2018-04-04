@@ -1,0 +1,15 @@
+parameters:
+    trustedData:
+        properties:
+            Oro\Bundle\DotmailerBundle\Model\Action\MarketingListStateItemRemoveAction:
+                getMarketingListEntitiesByEmailQueryBuilder:
+                    marketingListStateItemClassName: true
+            Oro\Bundle\DotmailerBundle\Model\Action\MarketingListStateItemCreateAction:
+                getMarketingListEntitiesByEmailQueryBuilder:
+                    marketingListStateItemClassName: true
+            Oro\Bundle\DotmailerBundle\Provider\MarketingListItemsQueryBuilderProvider:
+                getRemovedMarketingListItemsQB:
+                    addressBookContactClassName: true
+        safe_methods:
+            Oro\Bundle\DotmailerBundle\QueryDesigner\ParentEntityFindQueryConverter:
+                getTableAliasForColumn: true

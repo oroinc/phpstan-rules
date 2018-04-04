@@ -1,0 +1,8 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\ContactBundle\Entity\Repository\ContactRepository:
+                getPrimaryEmailsQb:
+                    fullNameQueryPart: true
+                getSecondaryEmailsQb:
+                    fullNameQueryPart: true

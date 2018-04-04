@@ -1,0 +1,5 @@
+parameters:
+    trustedData:
+        check_methods_safety:
+            Oro\Bundle\CurrencyBundle\Query\CurrencyQueryBuilderTransformerInterface:
+                getTransformSelectQuery: [0, 2, 3]

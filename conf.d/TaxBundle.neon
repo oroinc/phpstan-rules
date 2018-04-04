@@ -1,0 +1,6 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\TaxBundle\Entity\Repository\TaxRuleRepository:
+                joinTaxCodes:
+                    alias: true

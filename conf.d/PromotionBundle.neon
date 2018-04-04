@@ -1,0 +1,6 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\PromotionBundle\Mapper\AppliedPromotionMapper:
+                getAppliedCoupon:
+                    appliedCouponCodes: true

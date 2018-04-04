@@ -24,7 +24,7 @@ and is implemented as additional Rule.
 To check codebase for unsafe DQL and SQL usages perform the following actions:
  - change directory to `<application_path>/package/test-security/tool/sql-injection/` where `<application_path>` is path to application in the file system
  - install dependencies `composer install`
- - run check with `./vendor/bin/phpstan analyze -c config.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
+ - run check with `./vendor/bin/phpstan analyze <path_to_code> --autoload-file=<path_to_autoload.php>`
  
 To speedup analysis it's recommended to run it in parallel on per package basis. This may be achieved with the help of the `parallel` command:
 ```
@@ -33,7 +33,7 @@ rm -rf logs;
 mkdir logs;
 ls ../../../ \
 | grep -v "\-demo" | grep -v "demo-" | grep -v "test-" | grep -v "german-" \
-| parallel -j 4  "./vendor/bin/phpstan analyze -c config.neon `pwd`/../../../{} --autoload-file=`pwd`/../../../../application/commerce-crm-ee/app/autoload.php > logs/{}.log"
+| parallel -j 4  "./vendor/bin/phpstan analyze `pwd`/../../../{} --autoload-file=`pwd`/../../../../application/commerce-crm-ee/app/autoload.php > logs/{}.log"
 ```
 Note that _commerce-crm-ee_ application should have `autoload.php` generated.
 The results of the analysis should be available within a minute. Each result should be checked carefully. Unsafe variables should be sanitized or escaped as a precaution.
@@ -147,10 +147,11 @@ Identifiers should be either checked for safety with QueryBuilderUtil or quoted 
      ```
 
 ## Static code analysis - Configuration
-If a variable, a property or a method are considered safe after a detailed manual analysis, they may be added to `trusted_data.neon`.
+Trusted Data is organized per bundle, each separate config file is placed in `conf.d` directory. All of them are merged in `trusted_data.neon` with help of `includes`
+If a variable, a property or a method are considered safe after a detailed manual analysis, they may be added to Trusted Data.
 Such items will be marked as safe during further checks and skipped.
 
-Available `trusted_data.neon` configuration sections are:
+Available Trusted Data configuration sections are:
  - `variables` - whitelist of safe variables. Format `class.method.variable: true`
  - `properties` - whitelist of safe properties. Format `class.method.property: true`
  - `safe_methods` - whitelist of safe class methods. Format `class.method: true`

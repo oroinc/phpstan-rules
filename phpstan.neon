@@ -1,3 +1,7 @@
+includes:
+    - rules.neon
+    - trusted_data.neon
+
 parameters:
     excludes_analyse:
         - */platform/build/*
@@ -43,13 +47,3 @@ parameters:
         # Could not be checked by phpstan and does not contain any DB queries
         - */Oro/Bundle/TrackingBundle/Resources/public/lib/tracking.php
         - */Oro/Bundle/WebsiteBundle/install.php
-    customRulesetUsed: true
-    checkThisOnly: false
-
-services:
-    -
-        class: Oro\Rules\Methods\QueryBuilderInjectionRule
-        arguments:
-            checkThisOnly: %checkThisOnly%
-        tags:
-            - phpstan.rules.rule

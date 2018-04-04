@@ -1,0 +1,7 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\FrontendBundle\CacheWarmer\ClassMigration:
+                migrateTableColumn:
+                    table: true
+                    column: true

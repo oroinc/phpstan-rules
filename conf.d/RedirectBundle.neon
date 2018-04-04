@@ -1,0 +1,6 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\RedirectBundle\Async\SluggableEntitiesProcessor:
+                getEntityIds:
+                    identifierFieldName: true

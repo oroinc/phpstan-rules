@@ -2,7 +2,6 @@
 
 namespace Oro\Rules\Methods;
 
-use Nette\Neon\Neon;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleLevelHelper;
@@ -14,12 +13,10 @@ use PHPStan\Type\ThisType;
 use PHPStan\Type\Type;
 
 /**
- * Check methods listed in trusted_data.neon for unsafe calls.
+ * Check methods listed in trusted_data for unsafe calls.
  */
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
-    const TRUSTED_DATA_FILE = 'trusted_data.neon';
-
     const SAFE_FUNCTIONS = [
         'sprintf' => true,
         'implode' => true,
@@ -80,16 +77,18 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param \PhpParser\PrettyPrinter\Standard $printer
      * @param RuleLevelHelper $ruleLevelHelper
      * @param bool $checkThisOnly
+     * @param array $trustedData
      */
     public function __construct(
         \PhpParser\PrettyPrinter\Standard $printer,
         RuleLevelHelper $ruleLevelHelper,
-        bool $checkThisOnly
+        bool $checkThisOnly,
+        array $trustedData = []
     ) {
         $this->ruleLevelHelper = $ruleLevelHelper;
         $this->checkThisOnly = $checkThisOnly;
         $this->printer = $printer;
-        $this->loadTrustedData();
+        $this->loadTrustedData($trustedData);
     }
 
     /**
@@ -637,10 +636,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Load trusted data.
      * Convert all function and variable names to lower case.
+     *
+     * @param array $loadedData
      */
-    protected function loadTrustedData()
+    protected function loadTrustedData(array $loadedData)
     {
-        $loadedData = Neon::decode(\file_get_contents(self::TRUSTED_DATA_FILE));
         $data = [];
 
         $lowerVariables = function ($loaded, $key) use (&$data) {
@@ -658,7 +658,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $lowerVariables($loadedData, self::PROPERTIES);
 
         $lowerMethods = function ($loaded, $key) use (&$data) {
-            if (!array_key_exists($key, $loaded)) {
+            if (empty($loaded[$key])) {
                 $data[$key] = [];
             } else {
                 foreach ($loaded[$key] as $class => $methods) {

@@ -1,0 +1,13 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
+                apply:
+                    objectAlias: true
+        properties:
+            Oro\Bundle\DataAuditBundle\Filter\AuditFilter:
+                apply:
+                    auditAlias: true
+                    auditFieldAlias: true
+                    objectClassParam: true
+                    fieldParam: true

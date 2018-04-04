@@ -1,0 +1,11 @@
+parameters:
+    trustedData:
+        variables:
+            Oro\Bundle\ImportExportBundle\Reader\EntityReader:
+                createSourceEntityQueryBuilder:
+                    fieldName: true
+            Oro\Bundle\ImportExportBundle\EventListener\ExportJoinListener:
+                createSourceEntityQueryBuilderWithAssociations:
+                    fieldName: true
+                joinAssociations:
+                    fieldName: true

@@ -24,7 +24,7 @@ and is implemented as additional Rule.
 To check codebase for unsafe DQL and SQL usages perform the following actions:
  - change directory to `<application_path>/package/test-security/tool/sql-injection/` where `<application_path>` is path to application in the file system
  - install dependencies `composer install`
- - run check with `./vendor/bin/phpstan analyze <path_to_code> --autoload-file=<path_to_autoload.php>`
+ - run check with `./vendor/bin/phpstan analyze -c phpstan.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
  
 To speedup analysis it's recommended to run it in parallel on per package basis. This may be achieved with the help of the `parallel` command:
 ```
@@ -33,7 +33,7 @@ rm -rf logs;
 mkdir logs;
 ls ../../../ \
 | grep -v "\-demo" | grep -v "demo-" | grep -v "test-" | grep -v "german-" \
-| parallel -j 4  "./vendor/bin/phpstan analyze `pwd`/../../../{} --autoload-file=`pwd`/../../../../application/commerce-crm-ee/app/autoload.php > logs/{}.log"
+| parallel -j 4  "./vendor/bin/phpstan analyze -c phpstan.neon `pwd`/../../../{} --autoload-file=`pwd`/../../../../application/commerce-crm-ee/app/autoload.php > logs/{}.log"
 ```
 Note that _commerce-crm-ee_ application should have `autoload.php` generated.
 The results of the analysis should be available within a minute. Each result should be checked carefully. Unsafe variables should be sanitized or escaped as a precaution.

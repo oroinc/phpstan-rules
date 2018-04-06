@@ -1,7 +1,0 @@
-parameters:
-    trustedData:
-        variables:
-            Oro\Bundle\NotificationBundle\Provider\EmailNotificationGridHelper:
-                getEntityChoices:
-                    select: true
-                    entity: true

@@ -1,7 +1,21 @@
+extensions:
+    sql_injection_testing: Oro\DI\SqlInjectionTestingConfigExtension
+
 parameters:
     customRulesetUsed: true
     checkThisOnly: false
-    trustedData:
+
+services:
+    -
+        class: Oro\Rules\Methods\QueryBuilderInjectionRule
+        arguments:
+            checkThisOnly: %checkThisOnly%
+            trustedData: %trusted_data%
+        tags:
+            - phpstan.rules.rule
+
+sql_injection_testing:
+    trusted_data:
         variables: []
         properties: []
         safe_static_methods: []
@@ -206,12 +220,3 @@ parameters:
 
             Symfony\Bridge\Doctrine\RegistryInterface:
                 getManagerForClass: true
-
-services:
-    -
-        class: Oro\Rules\Methods\QueryBuilderInjectionRule
-        arguments:
-            checkThisOnly: %checkThisOnly%
-            trustedData: %trustedData%
-        tags:
-            - phpstan.rules.rule

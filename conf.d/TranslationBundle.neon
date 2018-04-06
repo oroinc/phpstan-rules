@@ -1,6 +1,0 @@
-parameters:
-    trustedData:
-        variables:
-            Oro\Bundle\TranslationBundle\Translation\DatabasePersister:
-                executeBatchTranslationInsert:
-                    sqlData: true

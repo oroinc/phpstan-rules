@@ -1,6 +1,5 @@
 includes:
     - rules.neon
-    - trusted_data.neon
 
 parameters:
     excludes_analyse:

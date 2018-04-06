@@ -1,6 +1,0 @@
-parameters:
-    trustedData:
-        variables:
-            Oro\Component\Action\Action\FindEntities:
-                addWhere:
-                    where: true

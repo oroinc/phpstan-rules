@@ -1,6 +1,0 @@
-parameters:
-    trustedData:
-        variables:
-            Oro\Bundle\BatchBundle\Command\CleanupCommand:
-                processBatch:
-                    className: true

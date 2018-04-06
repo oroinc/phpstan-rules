@@ -1,5 +1,0 @@
-parameters:
-    trustedData:
-        safe_methods:
-            Oro\Bundle\OrganizationProBundle\Grid\OrganizationColumnExtension:
-                getEntity: true

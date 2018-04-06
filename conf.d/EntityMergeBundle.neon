@@ -1,7 +1,0 @@
-parameters:
-    trustedData:
-        safe_methods:
-            Oro\Bundle\EntityMergeBundle\Doctrine\DoctrineHelper:
-                getSingleIdentifierFieldName: true
-                getEntityIdentifierValue: true
-                getEntityIds: true

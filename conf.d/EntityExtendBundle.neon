@@ -1,5 +1,0 @@
-parameters:
-    trustedData:
-        safe_static_methods:
-            Oro\Bundle\EntityExtendBundle\Tools\ExtendHelper:
-                buildAssociationName: true

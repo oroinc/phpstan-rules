@@ -1,6 +1,0 @@
-parameters:
-    trustedData:
-        variables:
-            Oro\Bundle\UserProBundle\Command\PasswordExpirationNotificationCommand:
-                execute:
-                    conditions: true

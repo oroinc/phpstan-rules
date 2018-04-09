@@ -1,5 +1,8 @@
 # Unsafe DQL usage analysis
 
+This extension provides following features:
+ - Security analysis of SQL and DQL queries
+
 ## Why DQL and SQL queries should be checked
 Using DQL does not protect against injection vulnerabilities. The following APIs are designed to be SAFE from SQL injections:
  - For Doctrine\DBAL\Connection#insert($table, $values, $types), Doctrine\DBAL\Connection#update($table, $values, $where, $types) and Doctrine\DBAL\Connection#delete($table, $where, $types) only the array values of $values and $where. The table name and keys of $values and $where are NOT escaped.
@@ -22,8 +25,12 @@ The tool is based on [PHPStan - PHP Static Analysis Tool](https://github.com/php
 and is implemented as additional Rule.
 
 To check codebase for unsafe DQL and SQL usages perform the following actions:
- - change directory to `<application_path>/package/test-security/tool/sql-injection/` where `<application_path>` is path to application in the file system
- - install dependencies `composer install`
+ - require `oroinc/phpstan-rules` in your project `composer require --dev oroinc/phpstan-rules`
+ - include `rules.neon` in your project's PHPStan config:
+```
+includes:
+    - vendor/oroinc/phpstan-rules/rules.neon
+```
  - run check with `./vendor/bin/phpstan analyze -c phpstan.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
  
 To speedup analysis it's recommended to run it in parallel on per package basis. This may be achieved with the help of the `parallel` command:
@@ -36,6 +43,7 @@ ls ../../../ \
 | parallel -j 4  "./vendor/bin/phpstan analyze -c phpstan.neon `pwd`/../../../{} --autoload-file=`pwd`/../../../../application/commerce-crm-ee/app/autoload.php > logs/{}.log"
 ```
 Note that _commerce-crm-ee_ application should have `autoload.php` generated.
+Due to bug in phpstan relative path is not supported for `--autoload-file` option.
 The results of the analysis should be available within a minute. Each result should be checked carefully. Unsafe variables should be sanitized or escaped as a precaution.
 
 ## HOW TO fix found warnings
@@ -147,8 +155,11 @@ Identifiers should be either checked for safety with QueryBuilderUtil or quoted 
      ```
 
 ## Static code analysis - Configuration
-Trusted Data is organized per bundle, each separate config file is placed in `conf.d` directory. All of them are merged in `trusted_data.neon` with help of `includes`
-If a variable, a property or a method are considered safe after a detailed manual analysis, they may be added to Trusted Data.
+Trusted Data is organized per bundle, each separate config file is placed in `Tests/trusted_data.neon` and loaded automatically.
+Configuration tree in `Tests/trusted_data.neon` files is organized under `trusted_data` root.
+Trusted data may be also configured via DI as `sql_injection_testing.trusted_data`.
+
+If a variable, a property or a method are considered safe after a detailed manual analysis, they may be added to `Tests/trusted_data.neon`.
 Such items will be marked as safe during further checks and skipped.
 
 Available Trusted Data configuration sections are:

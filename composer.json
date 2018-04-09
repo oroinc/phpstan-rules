@@ -1,6 +1,16 @@
 {
+    "name": "oroinc/phpstan-rules",
+    "description": "Oro Extensions for PHPStan",
+    "license": ["MIT"],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
     "autoload": {
-        "psr-4": {"": "src/"}
+        "psr-4": {"Oro\\": "src/"}
     },
     "require": {
         "phpstan/phpstan": "^0.9.1"

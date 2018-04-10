@@ -1,7 +1,13 @@
 {
-    "name": "oroinc/phpstan-rules",
-    "description": "Oro Extensions for PHPStan",
-    "license": ["MIT"],
+    "name": "oro/phpstan-rules",
+    "description": "A set of additional PHPStan rules used in Oro products.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oro, Inc",
+            "homepage": "https://oroinc.com"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {

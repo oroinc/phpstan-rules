@@ -44,7 +44,7 @@ ls <path_to_code>/ \
 ```
 
 Your application should already have `autoload.php` file generated.
-Please note that PHPStab does not support relative paths in `--autoload-file` option.
+Please note that PHPStan does not support relative paths in `--autoload-file` option.
 
 The results of the analysis should be available within a minute. Each result should be carefully checked and the necessary fixes should be applied.
 

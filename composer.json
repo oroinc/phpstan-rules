@@ -16,7 +16,7 @@
         }
     },
     "autoload": {
-        "psr-4": {"Oro\\": "src/"}
+        "psr-4": {"": "src/"}
     },
     "require": {
         "phpstan/phpstan": "^0.9.1"

@@ -41,10 +41,22 @@ class TrustedDataConfigurationFinder
             array_walk(
                 $prefixesPsr4,
                 function ($dirs) use (&$directories) {
-                    $directories = array_merge($directories, array_values($dirs));
+                    $directories[] = array_values($dirs);
                 }
             );
-            $directories = array_merge($directories, $loader->getFallbackDirsPsr4(), $loader->getFallbackDirs());
+            $prefixesPsr0 = $loader->getPrefixes();
+            array_walk(
+                $prefixesPsr0,
+                function ($dirs) use (&$directories) {
+                    $directories[] = array_values($dirs);
+                }
+            );
+            $directories[] = $loader->getFallbackDirsPsr4();
+            $directories[] = $loader->getFallbackDirs();
+        }
+
+        if ($directories) {
+            $directories = array_merge(...$directories);
         }
 
         // Resolve directories real paths

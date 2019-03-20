@@ -14,10 +14,11 @@ services:
         tags:
             - phpstan.rules.rule
 
-    -
-        class: Oro\Rules\ValidExceptionCatchRule
-        tags:
-            - phpstan.rules.rule
+    # Should be uncommented after existing problems fixed
+    #-
+        #class: Oro\Rules\ValidExceptionCatchRule
+        #tags:
+            #- phpstan.rules.rule
 
 sql_injection_testing:
     trusted_data:

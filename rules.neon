@@ -14,6 +14,11 @@ services:
         tags:
             - phpstan.rules.rule
 
+    -
+        class: Oro\Rules\ValidExceptionCatchRule
+        tags:
+            - phpstan.rules.rule
+
 sql_injection_testing:
     trusted_data:
         variables: []

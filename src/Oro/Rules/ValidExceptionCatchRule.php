@@ -20,6 +20,9 @@ class ValidExceptionCatchRule implements Rule
      */
     private $ruleLevelHelper;
 
+    /**
+     * @param RuleLevelHelper $ruleLevelHelper
+     */
     public function __construct(RuleLevelHelper $ruleLevelHelper)
     {
         $this->ruleLevelHelper = $ruleLevelHelper;
@@ -32,10 +35,10 @@ class ValidExceptionCatchRule implements Rule
     {
         return Catch_::class;
     }
+
     /**
      * @param \PhpParser\Node\Stmt\Catch_ $node
-     * @param \PHPStan\Analyser\Scope $scope
-     * @return string[]
+     * {@inheritdoc}
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -45,6 +48,7 @@ class ValidExceptionCatchRule implements Rule
                 meant to be empty, please add a "// @ignoreException" comment in the catch block.'
             ];
         }
+
         return [];
     }
 
@@ -62,14 +66,14 @@ class ValidExceptionCatchRule implements Rule
                 return true;
             }
 
-            //For not empty statement
-            if (!$stmt instanceof Node\Stmt\Nop && \property_exists($stmt, 'var')) {
+            //If logger was called catch considered as valid
+            if ($stmt instanceof Node\Expr\MethodCall) {
                 $type = $this->ruleLevelHelper->findTypeToCheck(
                     $scope,
                     $stmt->var,
                     'Unknown class'
                 );
-                //If logger was called catch considered as valid
+
                 if (array_key_exists(0, $type->getReferencedClasses()) &&
                     $type->getReferencedClasses()[0] == 'Psr\Log\LoggerInterface'
                 ) {
@@ -77,7 +81,7 @@ class ValidExceptionCatchRule implements Rule
                 }
             }
 
-            //Comment with @ignoreException tag marks catch statement as valid (not empty)
+            //Comment with @ignoreException tag marks catch statement as valid
             if ($this->hasIgnoreComment($stmt)) {
                 return true;
             }

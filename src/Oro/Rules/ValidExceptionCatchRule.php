@@ -10,7 +10,7 @@ use PHPStan\Rules\RuleLevelHelper;
 
 /**
  * Checks whatever catch block is valid.
- * Catch block considered as correct if exception is logged (using Psr\Log\LoggerInterface)or throwed.
+ * Catch block considered as correct if an exception is logged (using Psr\Log\LoggerInterface) or thrown.
  * Also it can be marked as @ignoreException if author is really sure no logging needed.
  */
 class ValidExceptionCatchRule implements Rule
@@ -44,8 +44,9 @@ class ValidExceptionCatchRule implements Rule
     {
         if (!$this->isValidCatchBlock($node->stmts, $scope)) {
             return [
-                'Invalid catch block found. You should log exception or throw it. If you are certainly sure this is  
-                meant to be empty, please add a "// @ignoreException" comment in the catch block.'
+                'Invalid catch block found. You should log exception or throw it.' . PHP_EOL .
+                'If you are certainly sure this is meant to be empty, please add ' . PHP_EOL .
+                'a "// @ignoreException" comment in the catch block.'
             ];
         }
 
@@ -56,7 +57,6 @@ class ValidExceptionCatchRule implements Rule
      * @param Node[] $stmts
      * @param Scope $scope
      * @return bool
-     * @throws \ReflectionException
      */
     private function isValidCatchBlock(array $stmts, Scope $scope): bool
     {
@@ -75,7 +75,7 @@ class ValidExceptionCatchRule implements Rule
                 );
 
                 if (array_key_exists(0, $type->getReferencedClasses()) &&
-                    $type->getReferencedClasses()[0] == 'Psr\Log\LoggerInterface'
+                    $type->getReferencedClasses()[0] === 'Psr\Log\LoggerInterface'
                 ) {
                     return true;
                 }
@@ -102,7 +102,7 @@ class ValidExceptionCatchRule implements Rule
         //Try to find comments in statement
         if (\method_exists($statement, 'getComments')) {
             $comments = $statement->getComments();
-        } elseif ($statement->getAttribute('comments')) {
+        } elseif ($statement->hasAttribute('comments')) {
             $comments = $statement->getAttribute('comments');
         }
 

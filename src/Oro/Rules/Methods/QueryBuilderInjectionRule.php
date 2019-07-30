@@ -11,6 +11,7 @@ use PHPStan\Type\IntegerType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
 use PHPStan\Type\Type;
+use PHPStan\Type\UnionType;
 
 /**
  * Check methods listed in trusted_data for unsafe calls.
@@ -67,6 +68,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @var array
      */
     private $localTrustedVars = [];
+
+    /**
+     * @var array
+     */
+    private $checkMethodNames = [];
 
     /**
      * @var array
@@ -208,8 +214,32 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
             // Check only methods that are called on object or $this
             $type = $scope->getType($value->var);
-            if (!$type instanceof ObjectType && !$type instanceof ThisType) {
+            if (!$type instanceof ObjectType && !$type instanceof ThisType && !$type instanceof UnionType) {
+                if (in_array(strtolower($value->name), $this->checkMethodNames, true)) {
+                    $errors[] = \sprintf(
+                        'Could not determine type for %s. ' . PHP_EOL .
+                        'Class %s, method %s',
+                        $this->getFullCallName($value),
+                        $scope->getClassReflection()->getName(),
+                        $scope->getFunctionName()
+                    );
+                }
                 return true;
+            }
+
+            if ($type instanceof UnionType) {
+                $typeFound = false;
+                foreach ($type->getTypes() as $possibleType) {
+                    $typeFound = $possibleType instanceof ObjectType || $possibleType instanceof ThisType;
+                    if ($typeFound) {
+                        $type = $possibleType;
+                        break;
+                    }
+                }
+
+                if (!$typeFound) {
+                    return true;
+                }
             }
 
             $className = $type->getClassName();
@@ -677,6 +707,15 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $lowerMethods($loadedData, self::CLEAR_STATIC_METHODS);
 
         $this->trustedData = $data;
+
+        $this->checkMethodNames = [];
+        foreach ($this->trustedData[self::CHECK_METHODS] as $class => $methods) {
+            $this->checkMethodNames = array_merge($this->checkMethodNames, array_keys($methods));
+        }
+        foreach ($this->trustedData[self::CHECK_METHODS_SAFETY] as $class => $methods) {
+            $this->checkMethodNames = array_merge($this->checkMethodNames, array_keys($methods));
+        }
+        $this->checkMethodNames = array_unique($this->checkMethodNames);
     }
 
     /**
@@ -725,5 +764,25 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         return $valueType instanceof IntegerType
             || $valueType instanceof FloatType
             || $valueType instanceof BooleanType;
+    }
+
+    /**
+     * @param Node\Expr $node
+     * @return string
+     */
+    private function getFullCallName(Node\Expr $node)
+    {
+        $callStack = '';
+        if ($node instanceof Node\Expr\StaticCall) {
+            $callStack = $this->getFullCallName($node->var) . '::' . $node->name . '()';
+        }
+        if ($node instanceof Node\Expr\MethodCall) {
+            $callStack = $this->getFullCallName($node->var) . '->' . $node->name . '()';
+        }
+        if ($node instanceof Node\Expr\Variable) {
+            $callStack = '$' . $node->name;
+        }
+
+        return $callStack;
     }
 }

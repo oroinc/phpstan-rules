@@ -14,6 +14,41 @@ services:
         tags:
             - phpstan.rules.rule
 
+    -
+        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
+        arguments:
+            supportedClass: Doctrine\ORM\EntityManager
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
+        arguments:
+            supportedClass: Doctrine\Common\Persistence\ObjectManager
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
+        arguments:
+            supportedClass: Doctrine\ORM\EntityManagerInterface
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
+        arguments:
+            supportedClass: Doctrine\Common\Persistence\ManagerRegistry
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\ObjectRepositoryCreateQueryBuilderTypeExtension
+        arguments:
+            supportedClass:  Doctrine\Common\Persistence\ObjectRepository
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
     # Should be uncommented after existing problems fixed
     #-
         #class: Oro\Rules\ValidExceptionCatchRule

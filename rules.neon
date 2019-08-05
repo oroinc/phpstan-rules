@@ -21,11 +21,6 @@ services:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
     -
-        class: Oro\Rules\Types\ChainProcessorContextGetResultTypeExtension
-        tags:
-            - phpstan.broker.dynamicMethodReturnTypeExtension
-
-    -
         class: Oro\Rules\Types\EntityManagerReturnTypeExtension
         arguments:
             supportedClass: Doctrine\ORM\EntityManagerInterface

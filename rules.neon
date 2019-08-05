@@ -4,6 +4,7 @@ extensions:
 parameters:
     customRulesetUsed: true
     checkThisOnly: false
+    inferPrivatePropertyTypeFromConstructor: true
 
 services:
     -
@@ -15,39 +16,56 @@ services:
             - phpstan.rules.rule
 
     -
-        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
-        arguments:
-            supportedClass: Doctrine\ORM\EntityManager
+        class: Oro\Rules\Types\RequestGetSessionTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
     -
-        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
-        arguments:
-            supportedClass: Doctrine\Common\Persistence\ObjectManager
+        class: Oro\Rules\Types\ChainProcessorContextGetResultTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
     -
-        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
+        class: Oro\Rules\Types\EntityManagerReturnTypeExtension
         arguments:
             supportedClass: Doctrine\ORM\EntityManagerInterface
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
     -
-        class: Oro\Rules\Types\EntityManagerGetRepositoryTypeExtension
+        class: Oro\Rules\Types\EntityManagerReturnTypeExtension
         arguments:
             supportedClass: Doctrine\Common\Persistence\ManagerRegistry
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
     -
-        class: Oro\Rules\Types\ObjectRepositoryCreateQueryBuilderTypeExtension
+        class: Oro\Rules\Types\ManagerRegistryEMReturnTypeExtension
         arguments:
-            supportedClass:  Doctrine\Common\Persistence\ObjectRepository
+            supportedClass: Doctrine\Common\Persistence\ManagerRegistry
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\ObjectRepositoryReturnTypeExtension
+        arguments:
+            supportedClass:  Doctrine\ORM\EntityRepository
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    managerRegistryGetRepository:
+        class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            managerClass: Doctrine\Common\Persistence\ManagerRegistry
+
+    objectManagerGetRepository:
+        class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            managerClass: Doctrine\Common\Persistence\ObjectManager
 
     # Should be uncommented after existing problems fixed
     #-

@@ -163,7 +163,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             if ($className === 'self') {
                 $className = $scope->getClassReflection()->getName();
             }
-            $methodName = \strtolower($value->name);
+            $methodName = \strtolower((string)$value->name);
 
             // Whitelisted methods are safe
             if (!empty($this->trustedData[self::SAFE_STATIC_METHODS][$className][$methodName])) {
@@ -202,7 +202,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         $errors = [];
         if ($value instanceof Node\Expr\MethodCall) {
-            if (!\is_string($value->name)) {
+            if (!\is_string($value->name) && !$value->name instanceof Node\Identifier) {
                 return true;
             }
 
@@ -215,11 +215,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             // Check only methods that are called on object or $this
             $type = $scope->getType($value->var);
             if (!$type instanceof ObjectType && !$type instanceof ThisType && !$type instanceof UnionType) {
-                if (in_array(strtolower($value->name), $this->checkMethodNames, true)) {
+                if (in_array(strtolower((string)$value->name), $this->checkMethodNames, true)) {
                     $errors[] = \sprintf(
                         'Could not determine type for %s. ' . PHP_EOL .
                         'Class %s, method %s',
-                        $this->getFullCallName($value),
+                        $this->printer->prettyPrintExpr($value),
                         $scope->getClassReflection()->getName(),
                         $scope->getFunctionName()
                     );
@@ -245,17 +245,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $className = $type->getClassName();
             $this->checkClearMethodCall(self::CLEAR_METHODS, $className, $value, $scope);
 
-            if (!\is_string($value->name)) {
+            if (!\is_string($value->name) && !$value->name instanceof Node\Identifier) {
                 return true;
             }
 
             // Consider Doctrine\ORM\EntityRepository::getEntityName as safe
-            if ($value->name === 'getEntityName' && \is_a($className, 'Doctrine\ORM\EntityRepository', true)) {
+            if ((string)$value->name === 'getEntityName' && \is_a($className, 'Doctrine\ORM\EntityRepository', true)) {
                 return false;
             }
 
             // Whitelisted methods are safe
-            if (!empty($this->trustedData[self::SAFE_METHODS][$className][\strtolower($value->name)])) {
+            if (!empty($this->trustedData[self::SAFE_METHODS][$className][\strtolower((string)$value->name)])) {
                 return false;
             }
 
@@ -314,7 +314,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         'Argument %d contains unsafe values %s. ' . PHP_EOL .
                         'Class %s, method %s',
                         $className,
-                        $value->name,
+                        (string)$value->name,
                         $pos,
                         $this->printer->prettyPrint([$value->args[$pos]]),
                         $scope->getClassReflection()->getName(),
@@ -324,7 +324,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             };
 
             $argsCount = \count($value->args);
-            $lowerMethodName = \strtolower($value->name);
+            $lowerMethodName = \strtolower((string)$value->name);
 
             // If method is listed in check methods and only certain arguments should be checked - check them
             if (isset($config[$className][$lowerMethodName]) && \is_array($config[$className][$lowerMethodName])) {
@@ -387,8 +387,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if ($value instanceof Node\Expr\Variable) {
             $className = $scope->getClassReflection()->getName();
 
-            $functionName = \strtolower($scope->getFunctionName());
-            $varName = \strtolower($value->name);
+            $functionName = \strtolower((string)$scope->getFunctionName());
+            $varName = \strtolower((string)$value->name);
 
             return empty($this->trustedData[self::VAR][$className][$functionName][$varName])
                 && empty($this->localTrustedVars[$scope->getFile()][$functionName][$varName]);
@@ -406,19 +406,21 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function isUnsafeProperty(Node\Expr $value, Scope $scope): bool
     {
-        if ($value instanceof Node\Expr\PropertyFetch && is_string($value->name)) {
+        if ($value instanceof Node\Expr\PropertyFetch
+            && (is_string($value->name) || $value->name instanceof Node\Identifier)
+        ) {
             $type = $scope->getType($value->var);
             if (!$type instanceof ObjectType && !$type instanceof ThisType) {
                 return true;
             }
             $className = $type->getClassName();
 
-            if ($value->name === '_entityName' && \is_a($className, 'Doctrine\ORM\EntityRepository', true)) {
+            if ((string)$value->name === '_entityName' && \is_a($className, 'Doctrine\ORM\EntityRepository', true)) {
                 return false;
             }
 
-            $functionName = \strtolower($scope->getFunctionName());
-            $varName = \strtolower($value->name);
+            $functionName = \strtolower((string)$scope->getFunctionName());
+            $varName = \strtolower((string)$value->name);
 
             return empty($this->trustedData[self::PROPERTIES][$className][$functionName][$varName]);
         }
@@ -618,7 +620,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     protected function processMethodCalls(Node\Expr\MethodCall $node, Scope $scope): array
     {
-        if (!\is_string($node->name)) {
+        if (!\is_string($node->name) && !$node->name instanceof Node\Identifier) {
             return [];
         }
 
@@ -656,7 +658,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function checkClearMethodCall($type, $className, Node $value, Scope $scope)
     {
-        if (!empty($this->trustedData[$type][$className][\strtolower($value->name)])
+        if (!empty($this->trustedData[$type][$className][\strtolower((string)$value->name)])
             && $value->args[0]->value instanceof Node\Expr\Variable
         ) {
             $this->trustVariable($value->args[0]->value, $scope);
@@ -708,14 +710,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
         $this->trustedData = $data;
 
-        $this->checkMethodNames = [];
-        foreach ($this->trustedData[self::CHECK_METHODS] as $class => $methods) {
-            $this->checkMethodNames = array_merge($this->checkMethodNames, array_keys($methods));
-        }
-        foreach ($this->trustedData[self::CHECK_METHODS_SAFETY] as $class => $methods) {
-            $this->checkMethodNames = array_merge($this->checkMethodNames, array_keys($methods));
-        }
-        $this->checkMethodNames = array_unique($this->checkMethodNames);
+        $this->initializeCheckMethods();
     }
 
     /**
@@ -724,8 +719,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function trustVariable(Node\Expr\Variable $var, Scope $scope)
     {
-        $functionName = \strtolower($scope->getFunctionName());
-        $varName = \strtolower($var->name);
+        $functionName = \strtolower((string)$scope->getFunctionName());
+        $varName = \strtolower((string)$var->name);
         $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
     }
 
@@ -735,8 +730,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function untrustVariable(Node\Expr\Variable $var, Scope $scope)
     {
-        $functionName = \strtolower($scope->getFunctionName());
-        $varName = \strtolower($var->name);
+        $functionName = \strtolower((string)$scope->getFunctionName());
+        $varName = \strtolower((string)$var->name);
         unset($this->localTrustedVars[$scope->getFile()][$functionName][$varName]);
     }
 
@@ -767,22 +762,16 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
-     * @param Node\Expr $node
-     * @return string
+     * Check method names are methods that MUST be checked and should trigger error when impossible to detect type.
      */
-    private function getFullCallName(Node\Expr $node)
+    private function initializeCheckMethods(): void
     {
-        $callStack = '';
-        if ($node instanceof Node\Expr\StaticCall) {
-            $callStack = $this->getFullCallName($node->var) . '::' . $node->name . '()';
-        }
-        if ($node instanceof Node\Expr\MethodCall) {
-            $callStack = $this->getFullCallName($node->var) . '->' . $node->name . '()';
-        }
-        if ($node instanceof Node\Expr\Variable) {
-            $callStack = '$' . $node->name;
+        $this->checkMethodNames = [];
+        foreach ($this->trustedData[self::CHECK_METHODS] as $class => $methods) {
+            $this->checkMethodNames = array_merge($this->checkMethodNames, array_keys($methods));
         }
 
-        return $callStack;
+        // Remove `add` method as this name is too widely used and type detection fails too often
+        $this->checkMethodNames = array_diff(array_unique($this->checkMethodNames), ['add']);
     }
 }

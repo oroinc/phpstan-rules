@@ -8,33 +8,32 @@ use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 
-class EntityManagerGetRepositoryTypeExtension implements \PHPStan\Type\DynamicMethodReturnTypeExtension
+class ChainProcessorContextGetResultTypeExtension implements \PHPStan\Type\DynamicMethodReturnTypeExtension
 {
     /**
-     * @var string
+     * {@inheritDoc}
      */
-    private $supportedClass;
-
-    public function __construct($supportedClass)
-    {
-        $this->supportedClass = $supportedClass;
-    }
-
     public function getClass(): string
     {
-        return $this->supportedClass;
+        return 'Oro\Component\ChainProcessor\ContextInterface';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function isMethodSupported(MethodReflection $methodReflection): bool
     {
-        return $methodReflection->getName() === 'getRepository';
+        return $methodReflection->getName() === 'getResult';
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getTypeFromMethodCall(
         MethodReflection $methodReflection,
         MethodCall $methodCall,
         Scope $scope
     ): Type {
-        return new ObjectType('Doctrine\ORM\EntityRepository');
+        return new ObjectType('Oro\Bundle\ApiBundle\Request\ApiResourceSubresourcesCollection');
     }
 }

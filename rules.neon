@@ -1,3 +1,6 @@
+includes:
+    - ../../phpstan/phpstan-doctrine/extension.neon
+
 extensions:
     sql_injection_testing: Oro\DI\SqlInjectionTestingConfigExtension
 

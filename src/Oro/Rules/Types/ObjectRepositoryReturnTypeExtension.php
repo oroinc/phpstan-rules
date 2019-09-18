@@ -18,7 +18,7 @@ class ObjectRepositoryReturnTypeExtension implements \PHPStan\Type\DynamicMethod
     /**
      * @param string $supportedClass
      */
-    public function __construct($supportedClass)
+    public function __construct(string $supportedClass)
     {
         $this->supportedClass = $supportedClass;
     }
@@ -56,6 +56,8 @@ class ObjectRepositoryReturnTypeExtension implements \PHPStan\Type\DynamicMethod
                 return new ObjectType('Doctrine\ORM\QueryBuilder');
             case 'getentitymanager':
                 return new ObjectType('Doctrine\ORM\EntityManager');
+            default:
+                throw new \InvalidArgumentException('Unsupported method call');
         }
     }
 }

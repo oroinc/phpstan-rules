@@ -18,7 +18,7 @@ class ManagerRegistryEMReturnTypeExtension implements \PHPStan\Type\DynamicMetho
     /**
      * @param string $supportedClass
      */
-    public function __construct($supportedClass)
+    public function __construct(string $supportedClass)
     {
         $this->supportedClass = $supportedClass;
     }
@@ -36,11 +36,7 @@ class ManagerRegistryEMReturnTypeExtension implements \PHPStan\Type\DynamicMetho
      */
     public function isMethodSupported(MethodReflection $methodReflection): bool
     {
-        return \in_array(
-            $methodReflection->getName(),
-            ['getManagerForClass'],
-            true
-        );
+        return strtolower($methodReflection->getName()) === 'getmanagerforclass';
     }
 
     /**
@@ -51,9 +47,6 @@ class ManagerRegistryEMReturnTypeExtension implements \PHPStan\Type\DynamicMetho
         MethodCall $methodCall,
         Scope $scope
     ): Type {
-        switch ($methodReflection->getName()) {
-            case 'getManagerForClass':
-                return new ObjectType('Doctrine\ORM\EntityManagerInterface');
-        }
+        return new ObjectType('Doctrine\ORM\EntityManagerInterface');
     }
 }

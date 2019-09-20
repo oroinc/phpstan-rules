@@ -1,9 +1,13 @@
+includes:
+    - ../../phpstan/phpstan-doctrine/extension.neon
+
 extensions:
     sql_injection_testing: Oro\DI\SqlInjectionTestingConfigExtension
 
 parameters:
     customRulesetUsed: true
     checkThisOnly: false
+    inferPrivatePropertyTypeFromConstructor: true
 
 services:
     -
@@ -13,6 +17,53 @@ services:
             trustedData: %trusted_data%
         tags:
             - phpstan.rules.rule
+
+    -
+        class: Oro\Rules\Types\RequestGetSessionTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\EntityManagerReturnTypeExtension
+        arguments:
+            supportedClass: Doctrine\ORM\EntityManagerInterface
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\EntityManagerReturnTypeExtension
+        arguments:
+            supportedClass: Doctrine\Common\Persistence\ManagerRegistry
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\ManagerRegistryEMReturnTypeExtension
+        arguments:
+            supportedClass: Doctrine\Common\Persistence\ManagerRegistry
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
+        class: Oro\Rules\Types\ObjectRepositoryReturnTypeExtension
+        arguments:
+            supportedClass:  Doctrine\ORM\EntityRepository
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    managerRegistryGetRepository:
+        class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            managerClass: Doctrine\Common\Persistence\ManagerRegistry
+
+    objectManagerGetRepository:
+        class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            managerClass: Doctrine\Common\Persistence\ObjectManager
 
     # Should be uncommented after existing problems fixed
     #-

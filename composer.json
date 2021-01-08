@@ -19,7 +19,7 @@
         "psr-4": {"": "src/"}
     },
     "require": {
-        "phpstan/phpstan": "0.11.*",
+        "phpstan/phpstan-shim": "0.11.*",
         "phpstan/phpstan-doctrine": "0.11.*",
         "ocramius/proxy-manager": "2.2.*"
     }

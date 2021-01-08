@@ -3,7 +3,6 @@
 namespace Oro;
 
 use Composer\Autoload\ClassLoader;
-use Nette\Utils\Finder;
 
 /**
  * Return path to trusted_data configuration files stored in all paths registered in composer autoloaders.
@@ -22,8 +21,11 @@ class TrustedDataConfigurationFinder
 
         $files = [];
         /** @var \SplFileInfo $trustedDataConfigFile */
-        foreach (Finder::findFiles(self::TRUSTED_DATA_SEARCH_PATTERN)->from($directories) as $trustedDataConfigFile) {
-            $files[] = $trustedDataConfigFile->getRealPath();
+        foreach ($directories as $dir) {
+            $file = $dir . DIRECTORY_SEPARATOR . self::TRUSTED_DATA_SEARCH_PATTERN;
+            if (\is_readable($file)) {
+                $files[] = $file;
+            }
         }
 
         return $files;

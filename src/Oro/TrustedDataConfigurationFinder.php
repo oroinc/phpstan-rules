@@ -22,7 +22,7 @@ class TrustedDataConfigurationFinder
         $files = [];
         /** @var \SplFileInfo $trustedDataConfigFile */
         foreach ($directories as $dir) {
-            $file = $dir . '/' . self::TRUSTED_DATA_SEARCH_PATTERN;
+            $file = $dir . DIRECTORY_SEPARATOR . self::TRUSTED_DATA_SEARCH_PATTERN;
             if (\is_readable($file)) {
                 $files[] = $file;
             }

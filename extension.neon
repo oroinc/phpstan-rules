@@ -66,15 +66,15 @@ services:
 parametersSchema:
     sql_injection_testing: structure([
         trusted_data: structure([
-            variables: array()
-            properties: array()
-            safe_static_methods: array()
-            safe_methods: array()
-            check_static_methods_safety: array()
-            check_methods_safety: array()
-            check_methods: array()
-            clear_static_methods: array()
-            clear_methods: array()
+            variables: arrayOf(arrayOf(arrayOf(bool())))
+            properties: arrayOf(arrayOf(arrayOf(bool())))
+            safe_static_methods: arrayOf(arrayOf(bool()))
+            safe_methods: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
+            check_static_methods_safety: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
+            check_methods_safety: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
+            check_methods: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
+            clear_static_methods: arrayOf(arrayOf(bool()))
+            clear_methods: arrayOf(arrayOf(bool()))
         ])
     ])
 

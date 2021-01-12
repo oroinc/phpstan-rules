@@ -2,6 +2,7 @@
 
 namespace Oro\Rules\Methods;
 
+use Nette\Neon\Neon;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleLevelHelper;
@@ -673,6 +674,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     protected function loadTrustedData(array $loadedData)
     {
+        // Load trusted_data.neon files
+        $configs = [$loadedData];
+        foreach (\Oro\TrustedDataConfigurationFinder::findFiles() as $file) {
+            $config = Neon::decode(file_get_contents($file));
+            if (!array_key_exists('trusted_data', $config)) {
+                continue;
+            }
+            $configs[] = $config['trusted_data'];
+        }
+        $loadedData = array_merge_recursive(...$configs);
+
         $data = [];
 
         $lowerVariables = function ($loaded, $key) use (&$data) {

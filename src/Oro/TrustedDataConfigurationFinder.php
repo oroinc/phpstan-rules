@@ -15,7 +15,7 @@ class TrustedDataConfigurationFinder
     /**
      * @return array
      */
-    public static function findFiles()
+    public static function findFiles(): array
     {
         $directories = self::getAutoloadDirectories();
 
@@ -49,7 +49,7 @@ class TrustedDataConfigurationFinder
             $prefixesPsr0 = $loader->getPrefixes();
             array_walk(
                 $prefixesPsr0,
-                function ($dirs) use (&$directories) {
+                static function ($dirs) use (&$directories) {
                     $directories[] = array_values($dirs);
                 }
             );
@@ -74,13 +74,13 @@ class TrustedDataConfigurationFinder
     /**
      * @return ClassLoader[]
      */
-    private static function getRegisteredComposerAutoloaders()
+    private static function getRegisteredComposerAutoloaders(): array
     {
-        $composerLoaderClasses = array_filter(get_declared_classes(), function ($className) {
+        $composerLoaderClasses = array_filter(get_declared_classes(), static function ($className) {
             return strpos($className, self::COMPOSER_AUTOLOADER_INIT) === 0;
         });
 
-        return array_map(function ($className) {
+        return array_map(static function ($className) {
             return \call_user_func([$className, 'getLoader']);
         }, $composerLoaderClasses);
     }

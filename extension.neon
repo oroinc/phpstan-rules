@@ -43,6 +43,20 @@ services:
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
 
+    persistenceManagerRegistryGetRepository:
+            class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
+            tags:
+                - phpstan.broker.dynamicMethodReturnTypeExtension
+            arguments:
+                managerClass: Doctrine\Persistence\ManagerRegistry
+
+    persistenceObjectManagerGetRepository:
+        class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+        arguments:
+            managerClass: Doctrine\Persistence\ObjectManager
+
     managerRegistryGetRepository:
         class: Oro\Rules\Types\GetRepositoryDynamicReturnTypeExtension
         tags:

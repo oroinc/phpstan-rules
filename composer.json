@@ -19,7 +19,7 @@
         "psr-4": {"": "src/"}
     },
     "require": {
-        "phpstan/phpstan-src": "0.12.*",
+        "phpstan/phpstan": "0.12.*",
         "phpstan/phpstan-doctrine": "0.12.*",
         "nette/neon": "^3.1"
     }

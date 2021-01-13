@@ -19,9 +19,8 @@
         "psr-4": {"": "src/"}
     },
     "require": {
-        "phpstan/phpstan": "0.12.*",
+        "phpstan/phpstan-src": "0.12.*",
         "phpstan/phpstan-doctrine": "0.12.*",
-        "ocramius/proxy-manager": "2.2.*",
         "nette/neon": "^3.1"
     }
 }

@@ -6,6 +6,7 @@ use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\Doctrine\GetRepositoryDynamicReturnTypeExtension as BasenameExtension;
+use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
@@ -21,7 +22,9 @@ class GetRepositoryDynamicReturnTypeExtension extends BasenameExtension
         Scope $scope
     ): Type {
         $type = parent::getTypeFromMethodCall($methodReflection, $methodCall, $scope);
-        if ($type instanceof MixedType) {
+        if ($type instanceof MixedType
+            || ($type instanceof GenericObjectType && $type->getClassName() === 'Doctrine\Persistence\ObjectRepository')
+        ) {
             return new ObjectType('Doctrine\ORM\EntityRepository');
         }
 

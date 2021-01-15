@@ -163,6 +163,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             if ($className === 'self') {
                 $className = $scope->getClassReflection()->getName();
             }
+
+            if ($value->name instanceof \PhpParser\Node\Expr\Variable) {
+                return false;
+            }
             $methodName = \strtolower((string)$value->name);
 
             // Whitelisted methods are safe
@@ -658,7 +662,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function checkClearMethodCall($type, $className, Node $value, Scope $scope)
     {
-        if (!empty($this->trustedData[$type][$className][\strtolower((string)$value->name)])
+        if (!$value->name instanceof \PhpParser\Node\Expr\Variable
+            && !empty($this->trustedData[$type][$className][\strtolower((string)$value->name)])
             && $value->args[0]->value instanceof Node\Expr\Variable
         ) {
             $this->trustVariable($value->args[0]->value, $scope);

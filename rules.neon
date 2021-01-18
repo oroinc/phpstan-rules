@@ -172,10 +172,6 @@ sql_injection_testing:
                 pluralize: true
                 camelize: true
 
-            Doctrine\Inflector\Inflector:
-                pluralize: true
-                camelize: true
-
             Doctrine\Common\Collections\ExpressionBuilder:
                 notExists: [0]
 

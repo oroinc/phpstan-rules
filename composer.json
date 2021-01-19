@@ -20,7 +20,6 @@
     },
     "require": {
         "phpstan/phpstan-shim": "0.11.*",
-        "phpstan/phpstan-doctrine": "0.11.*",
-        "ocramius/proxy-manager": "2.2.*"
+        "phpstan/phpstan-doctrine": "0.11.*"
     }
 }

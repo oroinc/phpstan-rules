@@ -2,6 +2,7 @@
 
 namespace Oro\Rules\Methods;
 
+use Nette\Neon\Neon;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\RuleLevelHelper;
@@ -162,6 +163,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $className = $value->class->toString();
             if ($className === 'self') {
                 $className = $scope->getClassReflection()->getName();
+            }
+
+            if ($value->name instanceof \PhpParser\Node\Expr\Variable) {
+                return false;
             }
             $methodName = \strtolower((string)$value->name);
 
@@ -658,7 +663,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function checkClearMethodCall($type, $className, Node $value, Scope $scope)
     {
-        if (!empty($this->trustedData[$type][$className][\strtolower((string)$value->name)])
+        if (!$value->name instanceof \PhpParser\Node\Expr\Variable
+            && !empty($this->trustedData[$type][$className][\strtolower((string)$value->name)])
             && $value->args[0]->value instanceof Node\Expr\Variable
         ) {
             $this->trustVariable($value->args[0]->value, $scope);
@@ -673,6 +679,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     protected function loadTrustedData(array $loadedData)
     {
+        // Load trusted_data.neon files
+        $configs = [$loadedData];
+        foreach (\Oro\TrustedDataConfigurationFinder::findFiles() as $file) {
+            $config = Neon::decode(file_get_contents($file));
+            if (!array_key_exists('trusted_data', $config)) {
+                continue;
+            }
+            $configs[] = $config['trusted_data'];
+        }
+        $loadedData = array_merge_recursive(...$configs);
+
         $data = [];
 
         $lowerVariables = function ($loaded, $key) use (&$data) {

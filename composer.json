@@ -13,6 +13,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.8-dev"
+        },
+        "phpstan": {
+            "includes": [
+                "phpstan.neon"
+            ]
         }
     },
     "autoload": {

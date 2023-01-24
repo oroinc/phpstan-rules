@@ -37,7 +37,7 @@ To check codebase for unsafe DQL and SQL usages perform the following actions:
 To speedup analysis it's recommended to run it in parallel on per package basis. This may be achieved with the help of the `parallel` command:
 ```
 cd my_application/tool/
-composer install
+COMPOSER=composer-sql.json composer install
 rm -rf logs;
 mkdir logs;
 ls ../package/ \
@@ -164,7 +164,7 @@ Available `trusted_data.neon` configuration sections are:
  - `properties` - whitelist of safe properties. Format `class.method.property: true`
  - `safe_methods` - whitelist of safe class methods. Format `class.method: true`
  - `safe_static_methods` - whitelist of safe class static methods. Format `class.method: true`
- - `check_methods_safety` - consider method safe if passed variables are safe. Format `class.method: true` when all passed variables should be checked
+ - `check_methods_safety` - consider method safe if passed variables are safe. Format `class.method: true` when all passed variables should be checked. Includes `__construct` method for new instance creation checks  
   or `class.method: [1]` when only certain variables require checks (their positions are listed in array)
  - `check_static_methods_safety` - consider static method safe if passed variables are safe. Format `class.method: true` when all passed variables should be checked
   or `class.method: [1]` when only certain variables require checks (their positions are listed in array)

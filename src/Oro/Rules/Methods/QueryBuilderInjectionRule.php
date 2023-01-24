@@ -307,19 +307,21 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function checkMethodArguments(
         Node\Expr $value,
         Scope $scope,
-        $className,
+        string $className,
         array $config,
-        array &$errors = []
+        array &$errors = [],
+        bool $isConstructor = false
     ) {
         if (isset($config[$className])) {
-            $checkArg = function ($pos, array &$errors = []) use ($className, $value, $scope) {
+            $methodName = $isConstructor ? '__construct': (string)$value->name;
+            $checkArg = function ($pos, array &$errors = []) use ($className, $value, $scope, $methodName) {
                 if ($this->isUnsafe($value->args[$pos]->value, $scope)) {
                     $errors[] = \sprintf(
                         'Unsafe calling method %s::%s. ' . PHP_EOL .
                         'Argument %d contains unsafe values %s. ' . PHP_EOL .
                         'Class %s, method %s',
                         $className,
-                        (string)$value->name,
+                        $methodName,
                         $pos,
                         $this->printer->prettyPrint([$value->args[$pos]]),
                         $scope->getClassReflection()->getName(),
@@ -329,7 +331,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             };
 
             $argsCount = \count($value->args);
-            $lowerMethodName = \strtolower((string)$value->name);
+            $lowerMethodName = \strtolower($methodName);
 
             // If method is listed in check methods and only certain arguments should be checked - check them
             if (isset($config[$className][$lowerMethodName]) && \is_array($config[$className][$lowerMethodName])) {
@@ -378,6 +380,24 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         }
 
         return false;
+    }
+
+
+    private function isUnsafeNew(Node\Expr $value, Scope $scope)
+    {
+        if (!$value instanceof Node\Expr\New_) {
+            return false;
+        }
+
+        $errors = [];
+        return $this->checkMethodArguments(
+            $value,
+            $scope,
+            $value->class->toString(),
+            $this->trustedData[self::CHECK_METHODS_SAFETY],
+            $errors,
+            true
+        );
     }
 
     /**
@@ -479,6 +499,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $value instanceof Node\Expr\Array_
             || $value instanceof Node\Expr\Cast
             || $value instanceof Node\Expr\Ternary
+            || $value instanceof Node\Expr\New_
         );
     }
 
@@ -569,6 +590,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafe(Node\Expr $value, Scope $scope): bool
     {
         return $this->isUncheckedType($value)
+            || $this->isUnsafeNew($value, $scope)
             || $this->isUnsafeVariable($value, $scope)
             || $this->isUnsafeProperty($value, $scope)
             || $this->isUnsafeStaticMethodCall($value, $scope)

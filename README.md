@@ -33,6 +33,7 @@ To check codebase for unsafe DQL and SQL usages perform the following actions:
  - change directory to `<application_path>/tool/` where `<application_path>` is path to application in the file system
  - install dependencies `composer install`
  - run check with `./bin/phpstan analyze -c phpstan.neon <path_to_code> --autoload-file=<path_to_autoload.php>`
+   - to run checks in debug mode add `--debug` and `--xdebug` options
  
 To speedup analysis it's recommended to run it in parallel on per package basis. This may be achieved with the help of the `parallel` command:
 ```
@@ -173,13 +174,13 @@ Available `trusted_data.neon` configuration sections are:
  - `check_methods` - contains a list of methods that are checked for safeness. If passed arguments are unsafe, a security warning about such usage is reported by the analysis tool.
    Format `class.method: true` when all passed variables should be checked or `class.method: [1]` when only certain variables require checks (their positions are listed in array).
    Use `class.__all__: true` to check all class methods.
-   For example, there is SomeClass and we want to check all its methods, except for  `method1`. For `method1`, 
+   For example, there is SomeClass, and we want to check all its methods, except for  `method1`. For `method1`, 
    we want to enable only the first and third argument checks, and for `method2` we want all arguments to be checked:
     ```yml
     check_methods:
         SomeClass:
             __all__: true
-            method1: [0, 2]
+            method1: [0, 2, "3.array_keys_only", "4.array_values_only"]
             mrthod2: true
     ```
 

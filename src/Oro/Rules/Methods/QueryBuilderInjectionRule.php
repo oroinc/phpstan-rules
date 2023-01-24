@@ -19,7 +19,7 @@ use PHPStan\Type\UnionType;
  */
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
-    const SAFE_FUNCTIONS = [
+    const CHECK_FUNCTION_ARGS = [
         'sprintf' => true,
         'implode' => true,
         'join' => true,
@@ -29,6 +29,14 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         'replace' => true,
         'strtolower' => true,
         'strtoupper' => true
+    ];
+
+    const TRUST_FUNCTIONS = [
+        'count' => true,
+        'intval' => true,
+        'round' => true,
+        'mt_rand' => true,
+        'rand' => true
     ];
 
     const VAR = 'variables';
@@ -44,6 +52,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
     const CHECK_METHODS = 'check_methods';
     const ALL_METHODS = '__all__';
+    const ARRAY_VALUES_ONLY = 'array_values_only';
+    const ARRAY_KEYS_ONLY = 'array_keys_only';
 
     /**
      * @var \PHPStan\Rules\RuleLevelHelper
@@ -105,7 +115,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     public function getNodeType(): string
     {
-        return Node\Expr::class;
+        return \PhpParser\NodeAbstract::class;
     }
 
     /**
@@ -121,9 +131,28 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             return $this->processMethodCalls($node, $scope);
         } elseif ($node instanceof Node\Expr\StaticCall) {
             $this->processStaticMethodCall($node, $scope);
+        } elseif ($node instanceof Node\Stmt\ClassMethod) {
+            $this->trustMethodArguments($node, $scope);
         }
 
         return [];
+    }
+
+    private function trustMethodArguments(Node\Stmt\ClassMethod $node, Scope $scope): void
+    {
+        foreach ($node->getParams() as $param) {
+            $type = $param->type;
+            if ($type instanceof Node\Name) {
+                $className = (string)$type;
+                if ($className === 'DateTime' || $className === 'DateTimeZone') {
+                    $this->trustParam($param->var, $scope, (string)$node->name);
+                }
+            } elseif ($type instanceof Node\Identifier) {
+                if (in_array($type->name, ['int', 'float', 'bool'])) {
+                    $this->trustParam($param->var, $scope, (string)$node->name);
+                }
+            }
+        }
     }
 
     /**
@@ -136,15 +165,19 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeFunctionCall(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\FuncCall) {
-            if ($value->name instanceof Node\Name
-                && !empty(self::SAFE_FUNCTIONS[\strtolower($value->name->toString())])) {
-                foreach ($value->args as $arg) {
-                    if ($this->isUnsafe($arg->value, $scope)) {
-                        return true;
-                    }
+            if ($value->name instanceof Node\Name) {
+                if (!empty(self::TRUST_FUNCTIONS[\strtolower($value->name->toString())])) {
+                    return false;
                 }
-            } else {
-                return true;
+                if (!empty(self::CHECK_FUNCTION_ARGS[\strtolower($value->name->toString())])) {
+                    foreach ($value->args as $arg) {
+                        if ($this->isUnsafe($arg->value, $scope)) {
+                            return true;
+                        }
+                    }
+                } else {
+                    return true;
+                }
             }
         }
 
@@ -314,8 +347,13 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     ) {
         if (isset($config[$className])) {
             $methodName = $isConstructor ? '__construct': (string)$value->name;
-            $checkArg = function ($pos, array &$errors = []) use ($className, $value, $scope, $methodName) {
-                if ($this->isUnsafe($value->args[$pos]->value, $scope)) {
+            $checkArg = function ($pos, array &$errors = [], ?string $checkType = null) use (
+                $className,
+                $value,
+                $scope,
+                $methodName
+            ) {
+                if ($this->isUnsafe($value->args[$pos]->value, $scope, $checkType)) {
                     $errors[] = \sprintf(
                         'Unsafe calling method %s::%s. ' . PHP_EOL .
                         'Argument %d contains unsafe values %s. ' . PHP_EOL .
@@ -336,8 +374,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             // If method is listed in check methods and only certain arguments should be checked - check them
             if (isset($config[$className][$lowerMethodName]) && \is_array($config[$className][$lowerMethodName])) {
                 foreach ($config[$className][$lowerMethodName] as $argNum) {
+                    $checkType = null;
+                    if (str_contains((string)$argNum, '.')) {
+                        [$argNum, $checkType] = explode('.', $argNum);
+                    }
                     if (isset($value->args[$argNum])) {
-                        $checkArg($argNum, $errors);
+                        $checkArg($argNum, $errors, $checkType);
                     }
                 }
             } elseif ((isset($config[$className][$lowerMethodName]) && $config[$className][$lowerMethodName] === true)
@@ -389,11 +431,15 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             return false;
         }
 
+        if (!$value->class instanceof Node\Name) {
+            return false;
+        }
+
         $errors = [];
         return $this->checkMethodArguments(
             $value,
             $scope,
-            $value->class->toString(),
+            (string)$value->class,
             $this->trustedData[self::CHECK_METHODS_SAFETY],
             $errors,
             true
@@ -524,15 +570,20 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      *
      * @param Node\Expr $value
      * @param Scope $scope
+     * @param ?string $checkType
      * @return bool
      */
-    private function isUnsafeArray(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeArray(Node\Expr $value, Scope $scope, ?string $checkType = null): bool
     {
         if ($value instanceof Node\Expr\Array_) {
             foreach ($value->items as $arrayItem) {
-                if (($arrayItem->key && $this->isUnsafe($arrayItem->key, $scope))
-                    || $this->isUnsafe($arrayItem->value, $scope)
+                if ($checkType !== self::ARRAY_VALUES_ONLY && $arrayItem->key
+                    && $this->isUnsafe($arrayItem->key, $scope)
                 ) {
+                    return true;
+                }
+
+                if ($checkType !== self::ARRAY_KEYS_ONLY && $this->isUnsafe($arrayItem->value, $scope)) {
                     return true;
                 }
             }
@@ -542,7 +593,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
-     * Consider variables casted to boolean or numeric as safe.
+     * Consider variables cast to boolean or numeric as safe.
      *
      * @param Node\Expr $value
      * @param Scope $scope
@@ -587,7 +638,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafe(Node\Expr $value, Scope $scope): bool
+    private function isUnsafe(Node\Expr $value, Scope $scope, ?string $checkType = null): bool
     {
         return $this->isUncheckedType($value)
             || $this->isUnsafeNew($value, $scope)
@@ -600,7 +651,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $this->isUnsafeConcat($value, $scope)
             || $this->isUnsafeEncapsedString($value, $scope)
             || $this->isUnsafeCast($value, $scope)
-            || $this->isUnsafeArray($value, $scope)
+            || $this->isUnsafeArray($value, $scope, $checkType)
             || $this->isUnsafeTernary($value, $scope);
     }
 
@@ -758,7 +809,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function trustVariable(Node\Expr\Variable $var, Scope $scope)
     {
-        $functionName = \strtolower((string)$scope->getFunctionName());
+        $this->trustParam($var, $scope, (string)$scope->getFunctionName());
+    }
+
+    /**
+     * @param Node\Expr\Variable $var
+     * @param Scope $scope
+     * @param string $functionName
+     */
+    private function trustParam(Node\Expr\Variable $var, Scope $scope, string $functionName)
+    {
+        $functionName = \strtolower($functionName);
         $varName = \strtolower((string)$var->name);
         $this->localTrustedVars[$scope->getFile()][$functionName][$varName] = true;
     }

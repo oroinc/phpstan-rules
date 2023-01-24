@@ -83,7 +83,7 @@ parametersSchema:
             safe_methods: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
             check_static_methods_safety: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
             check_methods_safety: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
-            check_methods: arrayOf(arrayOf(anyOf(bool(), arrayOf(int()))))
+            check_methods: arrayOf(arrayOf(anyOf(bool(), arrayOf(anyOf(int(), string())))))
             clear_static_methods: arrayOf(arrayOf(bool()))
             clear_methods: arrayOf(arrayOf(bool()))
         ])

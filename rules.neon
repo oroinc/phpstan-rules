@@ -175,9 +175,9 @@ parameters:
                     fetchArray: [0]
                     fetchColumn: [0]
                     fetchAll: [0]
-                    delete: [0, 1]
-                    update: [0, 1, 2]
-                    insert: [0, 1]
+                    delete: [0, "1.array_keys_only"]
+                    update: [0, "1.array_keys_only", "2.array_keys_only"]
+                    insert: [0, "1.array_keys_only"]
                     prepare: true
                     executeQuery: [0]
                     executeCacheQuery: [0]

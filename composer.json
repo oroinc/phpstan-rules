@@ -26,8 +26,8 @@
         "psr-4": {"": "src/"}
     },
     "require": {
-        "phpstan/phpstan": "1.9.*",
-        "phpstan/phpstan-doctrine": "1.3.*",
+        "phpstan/phpstan": "1.11.*",
+        "phpstan/phpstan-doctrine": "1.4.*",
         "nette/neon": "^3.1"
     }
 }

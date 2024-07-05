@@ -19,7 +19,7 @@ use PHPStan\Type\UnionType;
  */
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
-    const SAFE_FUNCTIONS = [
+    const CHECK_FUNCTIONS = [
         'sprintf' => true,
         'implode' => true,
         'join' => true,
@@ -29,6 +29,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         'replace' => true,
         'strtolower' => true,
         'strtoupper' => true
+    ];
+
+    const SAFE_FUNCTIONS = [
+        'base64_encode' => true,
     ];
 
     const VAR = 'variables';
@@ -137,13 +141,17 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         if ($value instanceof Node\Expr\FuncCall) {
             if ($value->name instanceof Node\Name
-                && !empty(self::SAFE_FUNCTIONS[\strtolower($value->name->toString())])) {
+                && !empty(self::CHECK_FUNCTIONS[\strtolower($value->name->toString())])) {
                 foreach ($value->args as $arg) {
                     if ($this->isUnsafe($arg->value, $scope)) {
                         return true;
                     }
                 }
             } else {
+                if ($value->name instanceof Node\Name) {
+                    return empty(self::SAFE_FUNCTIONS[\strtolower($value->name->toString())]);
+                }
+
                 return true;
             }
         }
@@ -162,7 +170,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
             $className = $value->class->toString();
             if ($className === 'self') {
-                $className = $scope->getClassReflection()->getName();
+                $className = $scope->getClassReflection()?->getName();
             }
 
             if ($value->name instanceof \PhpParser\Node\Expr\Variable) {
@@ -171,12 +179,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $methodName = \strtolower((string)$value->name);
 
             // Whitelisted methods are safe
-            if (!empty($this->trustedData[self::SAFE_STATIC_METHODS][$className][$methodName])) {
+            if ($className && !empty($this->trustedData[self::SAFE_STATIC_METHODS][$className][$methodName])) {
                 return false;
             }
 
             // Check method arguments for safeness, if there are unsafe items - mark method as unsafe
-            if ((
+            if ($className && (
                 $result = $this
                     ->checkMethodArguments(
                         $value,
@@ -217,7 +225,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 return false;
             }
 
-            // Check only methods that are called on object or $this
+            // Check only methods that are called on an object or $this
             $type = $scope->getType($value->var);
             if (!$type instanceof ObjectType && !$type instanceof ThisType && !$type instanceof UnionType) {
                 if (in_array(strtolower((string)$value->name), $this->checkMethodNames, true)) {
@@ -225,7 +233,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         'Could not determine type for %s. ' . PHP_EOL .
                         'Class %s, method %s',
                         $this->printer->prettyPrintExpr($value),
-                        $scope->getClassReflection()->getName(),
+                        $scope->getClassReflection()?->getName(),
                         $scope->getFunctionName()
                     );
                 }
@@ -324,7 +332,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         $methodName,
                         $pos,
                         $this->printer->prettyPrint([$value->args[$pos]]),
-                        $scope->getClassReflection()->getName(),
+                        $scope->getClassReflection()?->getName(),
                         $scope->getFunctionName()
                     );
                 }
@@ -385,7 +393,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
     private function isUnsafeNew(Node\Expr $value, Scope $scope)
     {
-        if (!$value instanceof Node\Expr\New_) {
+        if (!$value instanceof Node\Expr\New_ || !$value->class instanceof Node\Name) {
             return false;
         }
 
@@ -410,7 +418,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeVariable(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Variable) {
-            $className = $scope->getClassReflection()->getName();
+            $className = $scope->getClassReflection()?->getName();
+            if (!$className) {
+                return false;
+            }
 
             $functionName = \strtolower((string)$scope->getFunctionName());
             $varName = \strtolower((string)$value->name);
@@ -670,9 +681,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         if ($node instanceof Node\Expr\StaticCall && $node->class instanceof Node\Name) {
             $className = $node->class->toString();
             if ($className === 'self') {
-                $className = $scope->getClassReflection()->getName();
+                $className = $scope->getClassReflection()?->getName();
             }
-            $this->checkClearMethodCall(self::CLEAR_STATIC_METHODS, $className, $node, $scope);
+            if ($className) {
+                $this->checkClearMethodCall(self::CLEAR_STATIC_METHODS, $className, $node, $scope);
+            }
         }
     }
 

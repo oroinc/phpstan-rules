@@ -60,6 +60,7 @@ parameters:
                     getIdentifier: true
                     getTableName: true
                     getAssociationMapping: true
+                    getColumnNames: true
 
                 Doctrine\ORM\Mapping\ClassMetadataInfo:
                     getSingleIdentifierFieldName: true
@@ -106,6 +107,9 @@ parameters:
 
                 Doctrine\Common\Collections\ExpressionBuilder:
                     notExists: [0]
+
+                Doctrine\DBAL\Platforms\AbstractPlatform:
+                    getTruncateTableSQL: [0]
 
             check_methods:
                 Doctrine\ORM\QueryBuilder:
@@ -172,15 +176,20 @@ parameters:
 
                 Doctrine\DBAL\Connection:
                     fetchAssoc: [0]
+                    fetchAssociative: [0]
+                    fetchAllAssociative: [0]
+                    fetchNumeric: [0]
+                    fetchOne: [0]
                     fetchArray: [0]
                     fetchColumn: [0]
                     fetchAll: [0]
-                    delete: [0, 1]
-                    update: [0, 1, 2]
-                    insert: [0, 1]
+                    delete: [0, 1:keys]
+                    update: [0, 1:keys, 2:keys]
+                    insert: [0, 1:keys]
                     prepare: true
                     executeQuery: [0]
                     executeCacheQuery: [0]
+                    executeStatement: [0]
                     project: [0]
                     query: [0, 1]
                     executeUpdate: [0]
@@ -200,6 +209,7 @@ parameters:
                     getSingleAssociationJoinColumnName: true
                     getSingleAssociationReferencedJoinColumnName: true
                     getFieldForColumn: true
+                    getColumnName: true
 
                 Doctrine\Persistence\ManagerRegistry:
                     getManagerForClass: true

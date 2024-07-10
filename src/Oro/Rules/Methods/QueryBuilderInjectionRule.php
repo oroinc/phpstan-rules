@@ -33,6 +33,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 
     const SAFE_FUNCTIONS = [
         'base64_encode' => true,
+        'count' => true
     ];
 
     const VAR = 'variables';
@@ -237,6 +238,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         $scope->getFunctionName()
                     );
                 }
+
                 return true;
             }
 
@@ -284,7 +286,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                 ) !== null
                 ||
                 (
-                    $result = $this
+                $result = $this
                     ->checkMethodArguments(
                         $value,
                         $scope,
@@ -321,9 +323,20 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         bool $isConstructor = false
     ) {
         if (isset($config[$className])) {
-            $methodName = $isConstructor ? '__construct': (string)$value->name;
+            $methodName = $isConstructor ? '__construct' : (string)$value->name;
             $checkArg = function ($pos, array &$errors = []) use ($className, $value, $scope, $methodName) {
-                if ($this->isUnsafe($value->args[$pos]->value, $scope)) {
+                $checkKeys = true;
+                $checkValues = true;
+                if (is_string($pos) && str_contains($pos, ':')) {
+                    [$pos, $type] = explode(':', $pos);
+                    if ($type === 'keys') {
+                        $checkValues = false;
+                    }
+                    if ($type === 'values') {
+                        $checkKeys = false;
+                    }
+                }
+                if ($this->isUnsafe($value->args[$pos]->value, $scope, $checkKeys, $checkValues)) {
                     $errors[] = \sprintf(
                         'Unsafe calling method %s::%s. ' . PHP_EOL .
                         'Argument %d contains unsafe values %s. ' . PHP_EOL .
@@ -398,6 +411,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         }
 
         $errors = [];
+
         return $this->checkMethodArguments(
             $value,
             $scope,
@@ -537,13 +551,19 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeArray(Node\Expr $value, Scope $scope): bool
-    {
+    private function isUnsafeArray(
+        Node\Expr $value,
+        Scope $scope,
+        bool $checkKeys = true,
+        bool $checkValues = true
+    ): bool {
         if ($value instanceof Node\Expr\Array_) {
             foreach ($value->items as $arrayItem) {
-                if (($arrayItem->key && $this->isUnsafe($arrayItem->key, $scope))
-                    || $this->isUnsafe($arrayItem->value, $scope)
-                ) {
+                if ($checkKeys && $arrayItem->key && $this->isUnsafe($arrayItem->key, $scope)) {
+                    return true;
+                }
+
+                if ($checkValues && $this->isUnsafe($arrayItem->value, $scope)) {
                     return true;
                 }
             }
@@ -598,8 +618,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafe(Node\Expr $value, Scope $scope): bool
-    {
+    private function isUnsafe(
+        Node\Expr $value,
+        Scope $scope,
+        bool $checkKeys = true,
+        bool $checkValues = true
+    ): bool {
         return $this->isUncheckedType($value)
             || $this->isUnsafeNew($value, $scope)
             || $this->isUnsafeVariable($value, $scope)
@@ -611,7 +635,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             || $this->isUnsafeConcat($value, $scope)
             || $this->isUnsafeEncapsedString($value, $scope)
             || $this->isUnsafeCast($value, $scope)
-            || $this->isUnsafeArray($value, $scope)
+            || $this->isUnsafeArray($value, $scope, $checkKeys, $checkValues)
             || $this->isUnsafeTernary($value, $scope);
     }
 

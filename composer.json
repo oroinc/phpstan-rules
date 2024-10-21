@@ -12,7 +12,7 @@
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-master": "1.11.x-dev"
+            "dev-master": "1.12.x-dev"
         },
         "phpstan": {
             "includes": [
@@ -26,8 +26,8 @@
         "psr-4": {"": "src/"}
     },
     "require": {
-        "phpstan/phpstan": "1.11.*",
-        "phpstan/phpstan-doctrine": "1.4.*",
+        "phpstan/phpstan": "1.12.*",
+        "phpstan/phpstan-doctrine": "1.5.*",
         "nette/neon": "^3.1"
     }
 }

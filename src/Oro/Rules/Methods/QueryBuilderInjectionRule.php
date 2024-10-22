@@ -9,6 +9,7 @@ use PHPStan\Rules\RuleLevelHelper;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\FloatType;
 use PHPStan\Type\IntegerType;
+use PHPStan\Type\NullType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\ThisType;
 use PHPStan\Type\Type;
@@ -436,6 +437,9 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             if (!$className) {
                 return false;
             }
+            if ($this->isSafeScalarValue($scope->getType($value))) {
+                return false;
+            }
 
             $functionName = \strtolower((string)$scope->getFunctionName());
             $varName = \strtolower((string)$value->name);
@@ -463,6 +467,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             if (!$type instanceof ObjectType && !$type instanceof ThisType) {
                 return true;
             }
+            if ($this->isSafeScalarValue($scope->getType($value))) {
+                return false;
+            }
+
             $className = $type->getClassName();
 
             if ((string)$value->name === '_entityName' && \is_a($className, 'Doctrine\ORM\EntityRepository', true)) {
@@ -832,9 +840,20 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function isSafeScalarValue(Type $valueType): bool
     {
+        if ($valueType instanceof UnionType) {
+            foreach ($valueType->getTypes() as $subType) {
+                if (!$this->isSafeScalarValue($subType)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         return $valueType instanceof IntegerType
             || $valueType instanceof FloatType
-            || $valueType instanceof BooleanType;
+            || $valueType instanceof BooleanType
+            || $valueType instanceof NullType;
     }
 
     /**

@@ -8,6 +8,11 @@ services:
             - phpstan.rules.rule
 
     -
+        class: Oro\Rules\Types\DoctrineConnectionReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+
+    -
         class: Oro\Rules\Types\RequestGetSessionTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension

@@ -11,6 +11,9 @@ use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 
+/**
+ * Provides EntityRepository return type
+ */
 class GetRepositoryDynamicReturnTypeExtension extends BasenameExtension
 {
     /**

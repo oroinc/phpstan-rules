@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Oro\Rules\Methods;
 
@@ -17,6 +19,10 @@ use PHPStan\Type\UnionType;
 
 /**
  * Check methods listed in trusted_data for unsafe calls.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+ * @SuppressWarnings(PHPMD.NPathComplexity)
  */
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
@@ -194,7 +200,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         $className,
                         $this->trustedData[self::CHECK_STATIC_METHODS_SAFETY]
                     )
-                ) !== null
+            ) !== null
             ) {
                 return $result;
             }
@@ -284,10 +290,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         $className,
                         $this->trustedData[self::CHECK_METHODS_SAFETY]
                     )
-                ) !== null
+            ) !== null
                 ||
                 (
-                $result = $this
+                    $result = $this
                     ->checkMethodArguments(
                         $value,
                         $scope,

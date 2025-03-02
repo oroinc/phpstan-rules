@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Oro\Rules\Types;
 
@@ -8,6 +10,9 @@ use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 
+/**
+ * Provides Session return type for the getSession method
+ */
 class RequestGetSessionTypeExtension implements \PHPStan\Type\DynamicMethodReturnTypeExtension
 {
     /**

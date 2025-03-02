@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Oro\Rules\Types;
 
@@ -9,6 +11,9 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use PHPStan\Type\UnionType;
 
+/**
+ * Provides UnionType(DriverStatement, DriverResultStatement) return type for the executequery method
+ */
 class DoctrineConnectionReturnTypeExtension implements \PHPStan\Type\DynamicMethodReturnTypeExtension
 {
     /**

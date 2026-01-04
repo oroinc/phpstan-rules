@@ -26,7 +26,7 @@ use PHPStan\Type\UnionType;
  */
 class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
 {
-    const CHECK_FUNCTIONS = [
+    public const CHECK_FUNCTIONS = [
         'sprintf' => true,
         'implode' => true,
         'join' => true,
@@ -38,24 +38,24 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         'strtoupper' => true
     ];
 
-    const SAFE_FUNCTIONS = [
+    public const SAFE_FUNCTIONS = [
         'base64_encode' => true,
         'count' => true
     ];
 
-    const VAR = 'variables';
-    const PROPERTIES = 'properties';
+    public const VAR = 'variables';
+    public const PROPERTIES = 'properties';
 
-    const SAFE_METHODS = 'safe_methods';
-    const SAFE_STATIC_METHODS = 'safe_static_methods';
-    const CHECK_METHODS_SAFETY = 'check_methods_safety';
-    const CHECK_STATIC_METHODS_SAFETY = 'check_static_methods_safety';
+    public const SAFE_METHODS = 'safe_methods';
+    public const SAFE_STATIC_METHODS = 'safe_static_methods';
+    public const CHECK_METHODS_SAFETY = 'check_methods_safety';
+    public const CHECK_STATIC_METHODS_SAFETY = 'check_static_methods_safety';
 
-    const CLEAR_METHODS = 'clear_methods';
-    const CLEAR_STATIC_METHODS = 'clear_static_methods';
+    public const CLEAR_METHODS = 'clear_methods';
+    public const CLEAR_STATIC_METHODS = 'clear_static_methods';
 
-    const CHECK_METHODS = 'check_methods';
-    const ALL_METHODS = '__all__';
+    public const CHECK_METHODS = 'check_methods';
+    public const ALL_METHODS = '__all__';
 
     /**
      * @var \PHPStan\Rules\RuleLevelHelper

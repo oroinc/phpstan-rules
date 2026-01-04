@@ -11,8 +11,8 @@ use Composer\Autoload\ClassLoader;
  */
 class TrustedDataConfigurationFinder
 {
-    const COMPOSER_AUTOLOADER_INIT = 'ComposerAutoloaderInit';
-    const TRUSTED_DATA_SEARCH_PATTERN = 'Tests/trusted_data.neon';
+    public const COMPOSER_AUTOLOADER_INIT = 'ComposerAutoloaderInit';
+    public const TRUSTED_DATA_SEARCH_PATTERN = 'Tests/trusted_data.neon';
 
     /**
      * @return array

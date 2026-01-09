@@ -106,7 +106,8 @@ class UnsafeMathOperationsRule extends BaseMathOperationsRule
         }
 
         // Checks for IntegerRangeType and UnionType
-        if ($leftType instanceof \PHPStan\Type\IntegerRangeType
+        if (
+            $leftType instanceof \PHPStan\Type\IntegerRangeType
             || $rightType instanceof \PHPStan\Type\IntegerRangeType
             || $leftType instanceof \PHPStan\Type\UnionType
             || $rightType instanceof \PHPStan\Type\UnionType
@@ -129,8 +130,10 @@ class UnsafeMathOperationsRule extends BaseMathOperationsRule
         if ($rightType instanceof ConstantIntegerType || $leftType instanceof ConstantIntegerType) {
             $constOperand = $rightType instanceof ConstantIntegerType ? $rightType : $leftType;
 
-            if (($constOperand->isInteger()->yes() || $constOperand->isInteger()->maybe())
-                && ($leftType->isInteger()->yes() || $rightType->isInteger()->yes())) {
+            if (
+                ($constOperand->isInteger()->yes() || $constOperand->isInteger()->maybe())
+                && ($leftType->isInteger()->yes() || $rightType->isInteger()->yes())
+            ) {
                 return true;
             }
         }
@@ -159,9 +162,11 @@ class UnsafeMathOperationsRule extends BaseMathOperationsRule
         }
 
         // If both operands are explicitly cast to int
-        if ($node instanceof BinaryOp &&
+        if (
+            $node instanceof BinaryOp &&
             $node->left instanceof Node\Expr\Cast\Int_ &&
-            $node->right instanceof Node\Expr\Cast\Int_) {
+            $node->right instanceof Node\Expr\Cast\Int_
+        ) {
             return true;
         }
 

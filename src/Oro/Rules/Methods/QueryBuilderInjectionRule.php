@@ -148,8 +148,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeFunctionCall(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\FuncCall) {
-            if ($value->name instanceof Node\Name
-                && !empty(self::CHECK_FUNCTIONS[\strtolower($value->name->toString())])) {
+            if (
+                $value->name instanceof Node\Name
+                && !empty(self::CHECK_FUNCTIONS[\strtolower($value->name->toString())])
+            ) {
                 foreach ($value->args as $arg) {
                     if ($this->isUnsafe($arg->value, $scope)) {
                         return true;
@@ -192,15 +194,15 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
 
             // Check method arguments for safeness, if there are unsafe items - mark method as unsafe
-            if ($className && (
-                $result = $this
-                    ->checkMethodArguments(
+            if (
+                $className && (
+                    $result = $this->checkMethodArguments(
                         $value,
                         $scope,
                         $className,
                         $this->trustedData[self::CHECK_STATIC_METHODS_SAFETY]
                     )
-            ) !== null
+                ) !== null
             ) {
                 return $result;
             }
@@ -282,15 +284,16 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
 
             // Methods marked for checked with safe arguments are safe
-            if ((
-                $result = $this
+            if (
+                (
+                    $result = $this
                     ->checkMethodArguments(
                         $value,
                         $scope,
                         $className,
                         $this->trustedData[self::CHECK_METHODS_SAFETY]
                     )
-            ) !== null
+                ) !== null
                 ||
                 (
                     $result = $this
@@ -368,7 +371,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                         $checkArg($argNum, $errors);
                     }
                 }
-            } elseif ((isset($config[$className][$lowerMethodName]) && $config[$className][$lowerMethodName] === true)
+            } elseif (
+                (isset($config[$className][$lowerMethodName]) && $config[$className][$lowerMethodName] === true)
                 || !empty($config[$className][self::ALL_METHODS])
             ) {
                 // Check all arguments if method is marked for checks or method is in class marked for checking
@@ -466,7 +470,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function isUnsafeProperty(Node\Expr $value, Scope $scope): bool
     {
-        if ($value instanceof Node\Expr\PropertyFetch
+        if (
+            $value instanceof Node\Expr\PropertyFetch
             && (is_string($value->name) || $value->name instanceof Node\Identifier)
         ) {
             $type = $scope->getType($value->var);
@@ -596,7 +601,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeCast(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Cast) {
-            if ($value instanceof Node\Expr\Cast\Int_
+            if (
+                $value instanceof Node\Expr\Cast\Int_
                 || $value instanceof Node\Expr\Cast\Bool_
                 || $value instanceof Node\Expr\Cast\Double
             ) {
@@ -736,7 +742,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private function checkClearMethodCall($type, $className, Node $value, Scope $scope)
     {
-        if (!$value->name instanceof \PhpParser\Node\Expr\Variable
+        if (
+            !$value->name instanceof \PhpParser\Node\Expr\Variable
             && !empty($this->trustedData[$type][$className][\strtolower((string)$value->name)])
             && $value->args[0]->value instanceof Node\Expr\Variable
         ) {

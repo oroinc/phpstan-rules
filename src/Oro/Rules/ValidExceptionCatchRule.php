@@ -74,7 +74,8 @@ class ValidExceptionCatchRule implements Rule
                     'Unknown class'
                 );
 
-                if (array_key_exists(0, $type->getReferencedClasses()) &&
+                if (
+                    array_key_exists(0, $type->getReferencedClasses()) &&
                     $type->getReferencedClasses()[0] === 'Psr\Log\LoggerInterface'
                 ) {
                     return true;

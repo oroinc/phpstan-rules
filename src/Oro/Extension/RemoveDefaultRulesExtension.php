@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Oro\Extension;
 
-use _PHPStan_e52dec71a\Nette\DI\CompilerExtension;
+use _PHPStan_b22655c3f\Nette\DI\CompilerExtension;
 use PHPStan\Rules\LazyRegistry;
 
 /**

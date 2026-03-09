@@ -1,4 +1,6 @@
 services:
+	-
+		class: PhpParser\PrettyPrinter\Standard
     -
         class: Oro\Rules\Methods\QueryBuilderInjectionRule
         arguments:

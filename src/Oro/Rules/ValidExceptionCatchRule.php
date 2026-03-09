@@ -6,6 +6,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\Catch_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Rules\RuleLevelHelper;
 
 /**
@@ -38,15 +39,18 @@ class ValidExceptionCatchRule implements Rule
 
     /**
      * @param \PhpParser\Node\Stmt\Catch_ $node
-     * {@inheritdoc}
+     * @param Scope $scope
+     * @return \PHPStan\Rules\RuleError[]
      */
     public function processNode(Node $node, Scope $scope): array
     {
         if (!$this->isValidCatchBlock($node->stmts, $scope)) {
             return [
-                'Invalid catch block found. You should log exception or throw it.' . PHP_EOL .
-                'If you are certainly sure this is meant to be empty, please add ' . PHP_EOL .
-                'a "// @ignoreException" comment in the catch block.'
+                RuleErrorBuilder::message(
+                    'Invalid catch block found. You should log exception or throw it.' . PHP_EOL .
+                    'If you are certainly sure this is meant to be empty, please add ' . PHP_EOL .
+                    'a "// @ignoreException" comment in the catch block.'
+                )->build()
             ];
         }
 

@@ -7,6 +7,7 @@ namespace Oro\Rules\Methods;
 use Nette\Neon\Neon;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Rules\RuleLevelHelper;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\FloatType;
@@ -698,7 +699,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * @param Node\Expr\MethodCall $node
      * @param Scope $scope
-     * @return array
+     * @return \PHPStan\Rules\RuleError[]
      */
     protected function processMethodCalls(Node\Expr\MethodCall $node, Scope $scope): array
     {
@@ -713,7 +714,9 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $errors = [];
         $this->isUnsafeMethodCall($node, $scope, $errors);
 
-        return $errors;
+        return array_map(static function (string $error): \PHPStan\Rules\RuleError {
+            return RuleErrorBuilder::message($error)->build();
+        }, $errors);
     }
 
     /**

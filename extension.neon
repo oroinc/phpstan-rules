@@ -1,5 +1,7 @@
 services:
     -
+        class: Oro\Rules\Node\Printer
+    -
         class: Oro\Rules\Methods\QueryBuilderInjectionRule
         arguments:
             checkThisOnly: %checkThisOnly%

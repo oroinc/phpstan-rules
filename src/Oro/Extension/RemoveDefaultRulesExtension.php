@@ -4,7 +4,20 @@ declare(strict_types=1);
 
 namespace Oro\Extension;
 
-use _PHPStan_b22655c3f\Nette\DI\CompilerExtension;
+// dynamic class alias for Nette\DI\CompilerExtension to avoid hard dependency on version
+$phpStanPrefix = null;
+foreach (get_declared_classes() as $className) {
+    if (str_ends_with($className, '\Nette\DI\CompilerExtension')) {
+        $phpStanPrefix = $className;
+        break;
+    }
+}
+
+if ($phpStanPrefix && !class_exists('Nette\DI\CompilerExtension')) {
+    class_alias($phpStanPrefix, 'Nette\DI\CompilerExtension');
+}
+
+use Nette\DI\CompilerExtension;
 use PHPStan\Rules\LazyRegistry;
 
 /**

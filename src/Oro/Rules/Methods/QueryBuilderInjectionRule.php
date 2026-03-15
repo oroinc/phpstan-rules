@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Oro\Rules\Methods;
 
 use Nette\Neon\Neon;
+use Oro\Rules\Node\Printer;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
+use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Rules\RuleLevelHelper;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\FloatType;
@@ -67,10 +69,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      */
     private $checkThisOnly;
 
-    /**
-     * @var \PhpParser\PrettyPrinter\Standard
-     */
-    private $printer;
+    private Printer $printer;
 
     /**
      * @var string
@@ -93,13 +92,13 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private $trustedData;
 
     /**
-     * @param \PhpParser\PrettyPrinter\Standard $printer
+     * @param \Oro\Rules\Node\Printer $printer
      * @param RuleLevelHelper $ruleLevelHelper
      * @param bool $checkThisOnly
      * @param array $trustedData
      */
     public function __construct(
-        \PhpParser\PrettyPrinter\Standard $printer,
+        Printer $printer,
         RuleLevelHelper $ruleLevelHelper,
         bool $checkThisOnly,
         array $trustedData = []
@@ -141,11 +140,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that all arguments of function are safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeFunctionCall(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeFunctionCall(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\FuncCall) {
             if (
@@ -172,10 +171,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check static method for unsafe usages.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @return bool
      */
-    private function isUnsafeStaticMethodCall(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeStaticMethodCall(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\StaticCall && $value->class instanceof Node\Name) {
             $className = $value->class->toString();
@@ -216,12 +215,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that method is whitelisted or it's arguments are safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @param array $errors
      * @return bool
      */
-    private function isUnsafeMethodCall(Node\Expr $value, Scope $scope, array &$errors = []): bool
+    private function isUnsafeMethodCall(Node $value, Scope $scope, array &$errors = []): bool
     {
         $errors = [];
         if ($value instanceof Node\Expr\MethodCall) {
@@ -239,15 +238,18 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $type = $scope->getType($value->var);
             if (!$type instanceof ObjectType && !$type instanceof ThisType && !$type instanceof UnionType) {
                 if (in_array(strtolower((string)$value->name), $this->checkMethodNames, true)) {
-                    $errors[] = \sprintf(
-                        'Could not determine type for %s. ' . PHP_EOL .
-                        'Class %s, method %s',
-                        $this->printer->prettyPrintExpr($value),
-                        $scope->getClassReflection()?->getName(),
-                        $scope->getFunctionName()
-                    );
+                    $errors[] = RuleErrorBuilder::message(sprintf(
+                        'Could not determine type for expression: %s',
+                        $this->printer->prettyPrintExpr($value)
+                    ))
+                        ->line($value->getLine())
+                        ->tip(sprintf(
+                            'Occurred in %s::%s()',
+                            $scope->getClassReflection()?->getName(),
+                            $scope->getFunctionName()
+                        ))
+                        ->build();
                 }
-
                 return true;
             }
 
@@ -308,7 +310,6 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             ) {
                 return $result;
             }
-
             // All unchecked methods are unsafe
             return true;
         }
@@ -325,7 +326,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
      * @return bool|null
      */
     private function checkMethodArguments(
-        Node\Expr $value,
+        Node $value,
         Scope $scope,
         string $className,
         array $config,
@@ -347,17 +348,19 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                     }
                 }
                 if ($this->isUnsafe($value->args[$pos]->value, $scope, $checkKeys, $checkValues)) {
-                    $errors[] = \sprintf(
-                        'Unsafe calling method %s::%s. ' . PHP_EOL .
-                        'Argument %d contains unsafe values %s. ' . PHP_EOL .
-                        'Class %s, method %s',
+                    $errors[] = RuleErrorBuilder::message(sprintf(
+                        'Unsafe call to method %s::%s().',
                         $className,
-                        $methodName,
-                        $pos,
-                        $this->printer->prettyPrint([$value->args[$pos]]),
-                        $scope->getClassReflection()?->getName(),
-                        $scope->getFunctionName()
-                    );
+                        $methodName
+                    ))
+                        ->tip(sprintf(
+                            "Argument #%d contains unsafe values: %s.\nContext: %s::%s",
+                            $pos,
+                            $this->printer->prettyPrint([$value->args[$pos]]),
+                            $scope->getClassReflection()?->getName(),
+                            $scope->getFunctionName()
+                        ))
+                        ->build();
                 }
             };
 
@@ -401,11 +404,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that all parts of concat are safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeConcat(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeConcat(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\BinaryOp\Concat) {
             return $this->isUnsafe($value->left, $scope) || $this->isUnsafe($value->right, $scope);
@@ -415,7 +418,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
 
-    private function isUnsafeNew(Node\Expr $value, Scope $scope)
+    private function isUnsafeNew(Node $value, Scope $scope)
     {
         if (!$value instanceof Node\Expr\New_ || !$value->class instanceof Node\Name) {
             return false;
@@ -436,11 +439,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that variable is whitelisted or was considered safe during assignment.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeVariable(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeVariable(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Variable) {
             $className = $scope->getClassReflection()?->getName();
@@ -464,11 +467,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that property is whitelisted or it is _entityName of some repository.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeProperty(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeProperty(Node $value, Scope $scope): bool
     {
         if (
             $value instanceof Node\Expr\PropertyFetch
@@ -500,11 +503,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that all parts of encapsed are safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeEncapsedString(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeEncapsedString(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Scalar\Encapsed) {
             foreach ($value->parts as $partValue) {
@@ -520,10 +523,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Only checked types may be safe. All unchecked types are considered as unsafe by default.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @return bool
      */
-    private function isUncheckedType(Node\Expr $value): bool
+    private function isUncheckedType(Node $value): bool
     {
         return !(
             $value instanceof Node\Expr\MethodCall
@@ -550,11 +553,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that array dim is safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeArrayDimFetch(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeArrayDimFetch(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\ArrayDimFetch) {
             return $this->isUnsafe($value->var, $scope);
@@ -566,12 +569,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that all array elements are safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
     private function isUnsafeArray(
-        Node\Expr $value,
+        Node $value,
         Scope $scope,
         bool $checkKeys = true,
         bool $checkValues = true
@@ -594,11 +597,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Consider variables casted to boolean or numeric as safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeCast(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeCast(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Cast) {
             if (
@@ -618,11 +621,11 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check that if-else branches of ternary operator are safe.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
-    private function isUnsafeTernary(Node\Expr $value, Scope $scope): bool
+    private function isUnsafeTernary(Node $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Ternary) {
             return ($value->if && $this->isUnsafe($value->if, $scope)) || $this->isUnsafe($value->else, $scope);
@@ -634,12 +637,12 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     /**
      * Check node safety.
      *
-     * @param Node\Expr $value
+     * @param Node $value
      * @param Scope $scope
      * @return bool
      */
     private function isUnsafe(
-        Node\Expr $value,
+        Node $value,
         Scope $scope,
         bool $checkKeys = true,
         bool $checkValues = true
@@ -763,7 +766,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
         $configs = [$loadedData];
         foreach (\Oro\TrustedDataConfigurationFinder::findFiles() as $file) {
             $config = Neon::decode(file_get_contents($file));
-            if (!array_key_exists('trusted_data', $config)) {
+            if (!array_key_exists('trusted_data', $config ?? [])) {
                 continue;
             }
             $configs[] = $config['trusted_data'];

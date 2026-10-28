@@ -205,3 +205,7 @@ The worst solution would be to mark `$fieldName` as safe because its parts may b
 ## Contribute
 
 Please referer to [Oro Community Guide](https://oroinc.com/orocommerce/doc/current/community/contribute) for information on how to contribute to this package and other Oro products. 
+
+## License
+
+[MIT](LICENSE) Copyright (c) 2026 Oro Inc.

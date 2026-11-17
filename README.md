@@ -211,8 +211,8 @@ parameters, a variable or a property that the method does not use.
 ```
 
 The command loads the bootstrap files of the given PHPStan config, checks the `trusted_data.neon` files of the
-application packages, the trusted data of the config with its includes and of this package,
-and exits with 1 when it finds a stale entry.
+application packages and the trusted data of the config with its includes, and exits with 1 when it finds a stale entry.
+The configs of this package are not checked: they list library methods of any supported library version.
 
 #### Static code analysis - JUnit report
 The `oroJunit` error format prints errors as a table and writes them as JUnit test cases, with the tip of each error,

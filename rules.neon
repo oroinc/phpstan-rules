@@ -105,8 +105,25 @@ parameters:
                     pluralize: true
                     camelize: true
 
+                # Check field names only
                 Doctrine\Common\Collections\ExpressionBuilder:
                     notExists: [0]
+                    andX: true
+                    orX: true
+                    not: true
+                    eq: [0]
+                    neq: [0]
+                    lt: [0]
+                    lte: [0]
+                    gt: [0]
+                    gte: [0]
+                    in: [0]
+                    notIn: [0]
+                    isNull: [0]
+                    contains: [0]
+                    memberOf: [0]
+                    startsWith: [0]
+                    endsWith: [0]
 
                 Doctrine\DBAL\Platforms\AbstractPlatform:
                     getTruncateTableSQL: [0]
@@ -114,27 +131,12 @@ parameters:
             check_methods:
                 Doctrine\ORM\QueryBuilder:
                     __all__: true
-                    where: [0, 1]
-                    orWhere: [0, 1]
-                    andWhere: [0, 1]
-                    having: [0, 1]
-                    orHaving: [0, 1]
-                    andHaving: [0, 1]
-                    join: [0, 1, 3]
-                    leftJoin: [0, 1, 3]
-                    innerJoin: [0, 1, 3]
+                    join: [0, 1, 3, 4]
+                    leftJoin: [0, 1, 3, 4]
+                    innerJoin: [0, 1, 3, 4]
 
                 Doctrine\DBAL\Query\QueryBuilder:
                     __all__: true
-                    where: [0, 1]
-                    orWhere: [0, 1]
-                    andWhere: [0, 1]
-                    having: [0, 1]
-                    orHaving: [0, 1]
-                    andHaving: [0, 1]
-                    join: [0, 1, 3]
-                    leftJoin: [0, 1, 3]
-                    innerJoin: [0, 1, 3]
 
                 Doctrine\ORM\Query\Expr:
                     __all__: true
@@ -178,6 +180,15 @@ parameters:
                     fetchAssoc: [0]
                     fetchAssociative: [0]
                     fetchAllAssociative: [0]
+                    fetchAllNumeric: [0]
+                    fetchAllKeyValue: [0]
+                    fetchAllAssociativeIndexed: [0]
+                    fetchFirstColumn: [0]
+                    iterateNumeric: [0]
+                    iterateAssociative: [0]
+                    iterateKeyValue: [0]
+                    iterateAssociativeIndexed: [0]
+                    iterateColumn: [0]
                     fetchNumeric: [0]
                     fetchOne: [0]
                     fetchArray: [0]
@@ -209,7 +220,6 @@ parameters:
                     getSingleAssociationJoinColumnName: true
                     getSingleAssociationReferencedJoinColumnName: true
                     getFieldForColumn: true
-                    getColumnName: true
 
                 Doctrine\Persistence\ManagerRegistry:
                     getManagerForClass: true

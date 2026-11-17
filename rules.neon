@@ -220,6 +220,7 @@ parameters:
                     getSingleAssociationJoinColumnName: true
                     getSingleAssociationReferencedJoinColumnName: true
                     getFieldForColumn: true
+                    getColumnName: true
 
                 Doctrine\Persistence\ManagerRegistry:
                     getManagerForClass: true

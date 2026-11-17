@@ -8,12 +8,12 @@ use Nette\Neon\Neon;
 use Oro\TrustedDataConfigurationFinder;
 
 /**
- * Collects trusted data per file from the application packages, the rules package and a PHPStan config with its
- * includes, and the bootstrap files of that config.
+ * Collects trusted data per file from the application packages and a PHPStan config with its includes,
+ * except the configs of this package, and the bootstrap files of that config.
  */
 class TrustedDataSources
 {
-    private const RULES_CONFIG = __DIR__ . '/../../../rules.neon';
+    private const PACKAGE_DIR = __DIR__ . '/../../..';
 
     /** @var string[] */
     private array $configFiles = [];
@@ -51,7 +51,7 @@ class TrustedDataSources
             $sources[$file] = $this->decode($file)['trusted_data'] ?? [];
         }
 
-        foreach (array_merge([realpath(self::RULES_CONFIG)], $this->configFiles) as $file) {
+        foreach ($this->configFiles as $file) {
             $sources[$file] = $this->decode($file)['parameters']['sql_injection_testing']['trusted_data'] ?? [];
         }
 
@@ -62,6 +62,10 @@ class TrustedDataSources
     {
         $configFile = realpath($configFile);
         if (!$configFile || in_array($configFile, $this->configFiles, true)) {
+            return;
+        }
+
+        if (str_starts_with($configFile, realpath(self::PACKAGE_DIR) . '/')) {
             return;
         }
 

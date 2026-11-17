@@ -1,4 +1,9 @@
 services:
+    errorFormatter.oroJunit:
+        class: Oro\ErrorFormatter\JunitReportErrorFormatter
+        arguments:
+            tableErrorFormatter: @errorFormatter.table
+
     -
         class: Oro\Rules\Methods\QueryBuilderInjectionRule
         arguments:

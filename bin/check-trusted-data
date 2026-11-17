@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Reports SQL injection trusted data entries that no longer match the code; exits with 1 when it finds any.
+ *
+ * Usage: check-trusted-data -c <PHPStan config with the SQL injection rule>
+ */
+
+declare(strict_types=1);
+
+use Oro\TrustedData\StaleEntryChecker;
+use Oro\TrustedData\TrustedDataSources;
+
+require $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+
+$options = getopt('c:', ['configuration:']);
+$configFile = $options['c'] ?? $options['configuration'] ?? null;
+if (!is_string($configFile) || !is_file($configFile)) {
+    fwrite(STDERR, 'Usage: check-trusted-data -c <PHPStan config with the SQL injection rule>' . PHP_EOL);
+    exit(2);
+}
+
+$sources = new TrustedDataSources($configFile);
+foreach ($sources->getBootstrapFiles() as $bootstrapFile) {
+    require_once $bootstrapFile;
+}
+
+$stale = (new StaleEntryChecker())->check($sources->getSources());
+
+$count = 0;
+foreach ($stale as $file => $entries) {
+    echo $file, PHP_EOL;
+    foreach ($entries as $entry) {
+        echo '    ', $entry, PHP_EOL;
+        $count++;
+    }
+}
+echo sprintf('%d stale trusted data entries in %d files', $count, count($stale)), PHP_EOL;
+
+exit($count ? 1 : 0);

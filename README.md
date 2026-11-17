@@ -202,6 +202,27 @@ The best solution to make this expression safe is to check `$suffix` with `Query
 Another option is to add `$suffix` into the `trusted_data.neon` whitelist if its values are always passed as safe or checked in the caller.
 The worst solution would be to mark `$fieldName` as safe because its parts may be changed and, after adding a new or an unsafe part, it will be skipped, although it may contain an unchecked vulnerability.
 
+#### Static code analysis - Stale trusted data
+A trusted data entry that no longer matches the code is reported by the `check-trusted-data` command:
+a class or a method that does not exist, a static modifier that differs, an argument position beyond the method
+parameters, a variable or a property that the method does not use.
+
+```
+./bin/check-trusted-data -c phpstan.neon
+```
+
+The command loads the bootstrap files of the given PHPStan config, checks the `trusted_data.neon` files of the
+application packages, the trusted data of the config with its includes and of this package,
+and exits with 1 when it finds a stale entry.
+
+#### Static code analysis - JUnit report
+The `oroJunit` error format prints errors as a table and writes them as JUnit test cases, with the tip of each error,
+to the file in the `PHPSTAN_JUNIT_REPORT` environment variable.
+
+```
+PHPSTAN_JUNIT_REPORT=logs/sql-injection.xml ./bin/phpstan analyze -c phpstan.neon --error-format=oroJunit <path_to_code>
+```
+
 
 ## Contribute
 

@@ -25,6 +25,9 @@
     "autoload": {
         "psr-4": {"": "src/"}
     },
+    "bin": [
+        "bin/check-trusted-data"
+    ],
     "require": {
         "phpstan/phpstan": "1.9.*",
         "phpstan/phpstan-doctrine": "1.3.*",

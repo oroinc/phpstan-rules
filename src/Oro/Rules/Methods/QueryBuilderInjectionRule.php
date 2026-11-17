@@ -123,6 +123,8 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         if ($node instanceof Node\Expr\Assign) {
             $this->processAssigns($node, $scope);
+        } elseif ($node instanceof Node\Expr\AssignOp\Concat) {
+            $this->processPartialAssign($node->var, $node->expr, $scope);
         } elseif ($node instanceof Node\Expr\MethodCall) {
             return $this->processMethodCalls($node, $scope);
         } elseif ($node instanceof Node\Expr\StaticCall) {
@@ -355,10 +357,18 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             $argsCount = \count($value->args);
             $lowerMethodName = \strtolower($methodName);
 
+            // skip methods the class config does not list
+            $isConfigured = isset($config[$className][$lowerMethodName])
+                || !empty($config[$className][self::ALL_METHODS]);
+            if (!$isConfigured) {
+                return null;
+            }
+
             // If method is listed in check methods and only certain arguments should be checked - check them
             if (isset($config[$className][$lowerMethodName]) && \is_array($config[$className][$lowerMethodName])) {
                 foreach ($config[$className][$lowerMethodName] as $argNum) {
-                    if (isset($value->args[$argNum])) {
+                    // take the argument number from positions like "1:keys"
+                    if (isset($value->args[(int)$argNum])) {
                         $checkArg($argNum, $errors);
                     }
                 }
@@ -613,7 +623,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     private function isUnsafeTernary(Node\Expr $value, Scope $scope): bool
     {
         if ($value instanceof Node\Expr\Ternary) {
-            return ($value->if && $this->isUnsafe($value->if, $scope)) || $this->isUnsafe($value->else, $scope);
+            // use the condition as the value of a short ternary
+            $ifValue = $value->if ?? $value->cond;
+
+            return $this->isUnsafe($ifValue, $scope) || $this->isUnsafe($value->else, $scope);
         }
 
         return false;
@@ -680,6 +693,23 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
                     }
                 }
             }
+        } elseif ($node->var instanceof Node\Expr\ArrayDimFetch) {
+            $this->processPartialAssign($node->var, $node->expr, $scope);
+        }
+    }
+
+    /**
+     * Untrusts the variable when an unsafe value is written into its element or appended with ".=".
+     */
+    private function processPartialAssign(Node\Expr $target, Node\Expr $expr, Scope $scope): void
+    {
+        if (!$this->isUnsafe($expr, $scope)) {
+            return;
+        }
+
+        $rootVar = $this->getRootVariable($target);
+        if ($rootVar) {
+            $this->untrustVariable($rootVar, $scope);
         }
     }
 
@@ -755,7 +785,10 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
             }
             $configs[] = $config['trusted_data'];
         }
-        $loadedData = array_merge_recursive(...$configs);
+        $loadedData = [];
+        foreach ($configs as $config) {
+            $loadedData = $this->mergeTrustedData($loadedData, $config);
+        }
 
         $data = [];
 
@@ -798,6 +831,28 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     }
 
     /**
+     * Merges trusted data files, joins argument position lists and keeps "true" over a list.
+     */
+    private function mergeTrustedData(array $target, array $source): array
+    {
+        foreach ($source as $key => $value) {
+            $current = $target[$key] ?? null;
+            if (!\is_array($current) || !\is_array($value)) {
+                $target[$key] = $current === true ? true : $value;
+                continue;
+            }
+
+            if (array_is_list($current) && array_is_list($value)) {
+                $target[$key] = array_values(array_unique(array_merge($current, $value)));
+            } else {
+                $target[$key] = $this->mergeTrustedData($current, $value);
+            }
+        }
+
+        return $target;
+    }
+
+    /**
      * @param Node\Expr\Variable $var
      * @param Scope $scope
      */
@@ -827,7 +882,7 @@ class QueryBuilderInjectionRule implements \PHPStan\Rules\Rule
     {
         if ($node instanceof Node\Expr\Variable) {
             return $node;
-        } elseif ($node instanceof Node\Expr\MethodCall) {
+        } elseif ($node instanceof Node\Expr\MethodCall || $node instanceof Node\Expr\ArrayDimFetch) {
             return $this->getRootVariable($node->var);
         }
 

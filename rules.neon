@@ -60,6 +60,7 @@ parameters:
                     getIdentifier: true
                     getTableName: true
                     getAssociationMapping: true
+                    getColumnNames: true
 
                 Doctrine\ORM\Mapping\ClassMetadataInfo:
                     getSingleIdentifierFieldName: true
@@ -123,6 +124,9 @@ parameters:
                     memberOf: [0]
                     startsWith: [0]
                     endsWith: [0]
+
+                Doctrine\DBAL\Platforms\AbstractPlatform:
+                    getTruncateTableSQL: [0]
 
             check_methods:
                 Doctrine\ORM\QueryBuilder:
